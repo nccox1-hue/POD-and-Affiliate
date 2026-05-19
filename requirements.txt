@@ -1,0 +1,39 @@
+# Core
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+python-dotenv==1.0.1
+httpx==0.27.0
+aiohttp==0.27.0
+pydantic==2.7.1
+pydantic-settings==2.2.1
+
+# Scheduling
+apscheduler==3.10.4
+
+# Database
+sqlalchemy==2.0.30
+aiosqlite==0.20.0
+
+# Scraping
+playwright==1.44.0
+beautifulsoup4==4.12.3
+lxml==5.2.2
+
+# Trend scanning
+pytrends==4.9.2
+
+# AI content (Claude)
+anthropic==0.28.0
+
+# Image handling
+Pillow==10.3.0
+requests==2.32.3
+
+# Etsy / Printful
+requests-oauthlib==2.0.0
+
+# Dashboard
+jinja2==3.1.4
+rich==13.7.1
+tenacity==8.3.0
+python-multipart==0.0.9

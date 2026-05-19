@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POD Automation Dashboard</title>
+<style>
+  :root {
+    --bg:#0f0f13;--surface:#1a1a24;--border:#2a2a3a;
+    --accent:#f59e0b;--green:#22c55e;--red:#ef4444;--blue:#3b82f6;
+    --text:#e2e8f0;--muted:#64748b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif}
+  header{background:var(--surface);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;gap:1rem}
+  header h1{font-size:1.2rem;font-weight:700}
+  .badge{background:var(--accent);color:#000;padding:.2rem .6rem;border-radius:999px;font-size:.75rem;font-weight:700}
+  .container{max-width:1200px;margin:0 auto;padding:2rem}
+  .grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem}
+  @media(max-width:768px){.grid-2{grid-template-columns:1fr}}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem}
+  .card-label{color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem}
+  .card-value{font-size:1.8rem;font-weight:700}
+  .green{color:var(--green)}.amber{color:var(--accent)}.blue{color:var(--blue)}
+  h2{font-size:.85rem;font-weight:600;margin-bottom:1rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  table{width:100%;border-collapse:collapse;font-size:.85rem}
+  th{text-align:left;padding:.5rem .75rem;color:var(--muted);font-weight:500;border-bottom:1px solid var(--border)}
+  td{padding:.5rem .75rem;border-bottom:1px solid var(--border);vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  .pill{display:inline-block;padding:.15rem .5rem;border-radius:6px;font-size:.75rem;font-weight:600}
+  .pill.draft{background:rgba(245,158,11,.15);color:var(--accent)}
+  .pill.active{background:rgba(34,197,94,.15);color:var(--green)}
+  .pill.failed{background:rgba(239,68,68,.15);color:var(--red)}
+  .pill.design_only{background:rgba(59,130,246,.15);color:var(--blue)}
+  .theme-bar{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem}
+  .theme-chip{background:var(--border);color:var(--text);padding:.2rem .6rem;border-radius:6px;font-size:.75rem}
+  img.mockup{width:48px;height:48px;object-fit:cover;border-radius:6px;background:var(--border)}
+  footer{text-align:center;color:var(--muted);font-size:.75rem;padding:2rem}
+  a{color:var(--accent);text-decoration:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>POD Automation</h1>
+  <span class="badge">Etsy + Printful</span>
+</header>
+<div class="container">
+
+  <div class="grid-4">
+    <div class="card">
+      <div class="card-label">Total Listings</div>
+      <div class="card-value blue">{{ total_listings }}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Active on Etsy</div>
+      <div class="card-value amber">{{ active_listings }}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Total Sales</div>
+      <div class="card-value">{{ total_sales }}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Net Profit</div>
+      <div class="card-value green">{{ total_profit }}</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Theme breakdown -->
+    <div class="card">
+      <h2>Themes in Use</h2>
+      <div class="theme-bar">
+        {% for t in theme_breakdown %}
+          <span class="theme-chip">{{ t.theme }} ({{ t.count }})</span>
+        {% else %}
+          <span style="color:var(--muted)">No themes yet — pipeline starting...</span>
+        {% endfor %}
+      </div>
+      <div style="margin-top:1.5rem">
+        <div class="card-label">Trends Discovered</div>
+        <div style="font-size:1.4rem;font-weight:700">{{ total_trends }}</div>
+      </div>
+    </div>
+
+    <!-- Revenue summary -->
+    <div class="card">
+      <h2>Revenue Summary</h2>
+      <table>
+        <tr><td style="color:var(--muted)">Gross Revenue</td><td style="font-weight:600">{{ total_revenue }}</td></tr>
+        <tr><td style="color:var(--muted)">Net Profit</td><td style="font-weight:600" class="green">{{ total_profit }}</td></tr>
+        <tr><td style="color:var(--muted)">Orders</td><td>{{ total_sales }}</td></tr>
+      </table>
+      <div style="margin-top:1rem;font-size:.75rem;color:var(--muted)">
+        Etsy fees: 6.5% transaction + 4% payment + £0.16/listing<br>
+        Printful cost deducted per order automatically
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent design jobs -->
+  <div class="card">
+    <h2>Recent Design Jobs</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Keyword</th>
+          <th>Theme</th>
+          <th>Title</th>
+          <th>Price</th>
+          <th>Etsy ID</th>
+          <th>Status</th>
+          <th>Created</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for job in recent_jobs %}
+        <tr>
+          <td style="color:var(--accent);font-weight:600">{{ job.keyword[:30] }}</td>
+          <td style="color:var(--muted);font-size:.8rem">{{ job.theme }}</td>
+          <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.8rem">{{ job.listing_title }}</td>
+          <td>£{{ "%.2f"|format(job.retail_price) }}</td>
+          <td style="font-family:monospace;font-size:.75rem;color:var(--muted)">
+            {% if job.etsy_listing_id %}
+              <a href="https://www.etsy.com/listing/{{ job.etsy_listing_id }}" target="_blank">{{ job.etsy_listing_id }}</a>
+            {% else %}—{% endif %}
+          </td>
+          <td><span class="pill {{ job.status }}">{{ job.status }}</span></td>
+          <td style="color:var(--muted);font-size:.75rem">{{ job.created_at.strftime('%d/%m %H:%M') if job.created_at else '—' }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="7" style="color:var(--muted);text-align:center;padding:2rem">No jobs yet — first pipeline run in progress...</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+<footer>
+  Auto-refreshes every 60s &nbsp;·&nbsp;
+  <a href="/api/stats">JSON Stats</a> &nbsp;·&nbsp;
+  <a href="/api/jobs">JSON Jobs</a>
+</footer>
+<script>setTimeout(()=>location.reload(),60000)</script>
+</body>
+</html>
