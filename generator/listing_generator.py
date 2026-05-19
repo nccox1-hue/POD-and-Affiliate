@@ -1,24 +1,31 @@
 """
-Generates SEO-optimised Etsy listing content using Claude.
+Generates SEO-optimised Etsy listing content using Gemini Flash.
 Etsy SEO: title keywords in first 40 chars, 13 tags max, keyword-rich description.
 """
 import asyncio
 import logging
 import json
 from typing import Dict, Any
-import anthropic
+from google import genai
 from config.settings import settings
 
 logger = logging.getLogger(__name__)
+
+_client = None
+
+
+def _get_client():
+    global _client
+    if _client is None:
+        _client = genai.Client(api_key=settings.gemini_api_key)
+    return _client
 
 
 async def generate_listing(keyword: str, theme: str, product_type: str = "t-shirt") -> Dict[str, Any]:
     """Generate a complete Etsy listing for a design keyword."""
 
-    if not settings.anthropic_api_key:
+    if not settings.gemini_api_key:
         return _fallback_listing(keyword, product_type)
-
-    client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
 
     prompt = f"""Create an SEO-optimised Etsy listing for a print-on-demand {product_type}.
 
@@ -37,12 +44,12 @@ Output ONLY valid JSON:
 }}"""
 
     def _call():
-        msg = client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=600,
-            messages=[{"role": "user", "content": prompt}],
+        client = _get_client()
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt,
         )
-        return msg.content[0].text.strip()
+        return response.text.strip()
 
     try:
         raw = await asyncio.get_event_loop().run_in_executor(None, _call)

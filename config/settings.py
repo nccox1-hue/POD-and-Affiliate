@@ -3,7 +3,7 @@ from typing import List
 
 
 class Settings(BaseSettings):
-    anthropic_api_key: str = ""
+    gemini_api_key: str = ""
 
     etsy_api_key: str = ""
     etsy_api_secret: str = ""

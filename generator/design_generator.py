@@ -108,27 +108,23 @@ async def _generate_stability(prompt: str, output_path: str) -> Optional[str]:
 
 
 async def build_design_prompt(keyword: str, theme: str) -> str:
-    """Use Claude to write a strong image generation prompt for the keyword."""
-    if not settings.anthropic_api_key:
+    """Use Gemini Flash to write a strong image generation prompt for the keyword."""
+    if not settings.gemini_api_key:
         return f"{keyword} graphic design illustration, minimalist style"
 
-    import anthropic
-    client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
+    from google import genai
 
     def _call():
-        msg = client.messages.create(
-            model="claude-haiku-4-5-20251001",  # Fast + cheap for prompt writing
-            max_tokens=150,
-            messages=[{
-                "role": "user",
-                "content": (
-                    f"Write a concise image generation prompt (max 30 words) for a "
-                    f"print-on-demand t-shirt design. Theme: {theme}. Keyword: {keyword}. "
-                    f"Focus on visual style only (no text). Output the prompt only, no explanation."
-                ),
-            }],
+        client = genai.Client(api_key=settings.gemini_api_key)
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=(
+                f"Write a concise image generation prompt (max 30 words) for a "
+                f"print-on-demand t-shirt design. Theme: {theme}. Keyword: {keyword}. "
+                f"Focus on visual style only (no text). Output the prompt only, no explanation."
+            ),
         )
-        return msg.content[0].text.strip()
+        return response.text.strip()
 
     try:
         return await asyncio.get_event_loop().run_in_executor(None, _call)
