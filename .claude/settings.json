@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "bitwarden": {
+      "command": "C:\\Users\\nickc\\AppData\\Roaming\\npm\\mcp-server-bitwarden.cmd",
+      "env": {
+        "BW_SESSION": "r0Fbsjaa7rcNMBdkzBFWuoYuw7aCfWbm+r2hxZrcpqTJqlbtk2BmMB1vywuwJX1vl8o3FPO8Zi9Yjea5roOFsw=="
+      }
+    }
+  }
+}
