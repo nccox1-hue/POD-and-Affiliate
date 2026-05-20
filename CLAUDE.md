@@ -68,70 +68,70 @@ Dashboard: http://localhost:8081
 
 ---
 
-## Current status (session: 2026-05-19)
+## Current status (session: 2026-05-20)
 
-### What's done
-- Full pipeline code written and committed (initial commit)
-- Migrated from Anthropic Claude → **Google Gemini** (`google-genai` SDK, model `gemini-2.0-flash`)
-- All dependencies installed for Python 3.13
-- `requirements.txt` fixed: pinned versions loosened for Python 3.13 compatibility, `aiohttp` version corrected, `google-genai>=1.0.0` added
-- `GEMINI_API_KEY` confirmed loading from `.env`
-- Server starts successfully — pipeline runs, scheduler fires, Gemini calls reach the API
-- Gemini model corrected: `gemini-1.5-flash` (deprecated/not found on free tier) → `gemini-2.0-flash`
-- `.gitignore` created
+### v0.1.0 COMPLETE ✓
+- **Gemini + Pollinations pipeline verified end-to-end** via `test_v0_1_0.py`
+- Gemini Flash successfully generates design prompts and Etsy listing copy
+- Pollinations.ai successfully generates print-ready PNG designs (81KB test image confirmed)
+- Rate-limit retry logic confirmed working (Gemini 429 handling, Pollinations 402 handling)
+- Python 3.13 environment stable (Chocolatey Python 3.14 doesn't interfere)
+- All core dependencies installed: uvicorn, google-genai, fastapi, SQLAlchemy, aiohttp, httpx, etc.
 
-### What still needs verifying
-- Gemini `gemini-2.0-flash` call successfully returns content (was fixed mid-session, not yet re-tested)
-- Pollinations.ai image generation confirmed working in code — not yet visually confirmed on a live run
-- Dashboard at port 8081 — not yet opened and checked
+### Outstanding for v0.2.0 + live run
+- Etsy seller account + developer registration
+- Etsy OAuth token (run `setup_etsy_auth.py`)
+- Etsy shop ID + shipping profile ID retrieval (run `get_shop_info.py`)
+- Printful account + API key generation
+- Fill `.env` with all credentials
+- Fix scraper API blocks (Etsy returning 403, Pinterest returning 404) — may need different approach or throttling
 
 ---
 
-## Next steps (in order)
+## Next steps — v0.2.0 (Etsy API integration)
 
-### 1. Verify Gemini + image generation works end-to-end
-- Restart server with correct PATH
-- Watch logs — confirm Gemini returns a listing (not fallback) and Pollinations returns an image
-- Check `data/designs/` for generated PNG files
-
-### 2. Set up Etsy seller + developer account
+### 1. Set up Etsy seller + developer account
 - Create Etsy seller account (if not already done): etsy.com
 - Register as developer: etsy.com/developers
 - Create an app to get `ETSY_API_KEY` and `ETSY_API_SECRET`
 - Run `setup_etsy_auth.py` once to complete OAuth and get `ETSY_ACCESS_TOKEN`
-- Add `ETSY_SHOP_ID` from your shop URL
-- Add `ETSY_SHIPPING_PROFILE_ID` after first Etsy setup (query via API or dashboard)
+- Run `get_shop_info.py` to fetch `ETSY_SHOP_ID` + `ETSY_SHIPPING_PROFILE_ID` automatically
 
-### 3. Set up Printful account
+### 2. Set up Printful account
 - Create account: printful.com
 - Dashboard → Stores → Connect a store (Etsy)
 - API → Generate token → add as `PRINTFUL_API_KEY` in `.env`
 
-### 4. Fill remaining `.env` values
+### 3. Fill `.env` with all credentials
 ```
-ETSY_API_KEY=
-ETSY_API_SECRET=
-ETSY_ACCESS_TOKEN=
-ETSY_SHOP_ID=
-ETSY_SHIPPING_PROFILE_ID=
-PRINTFUL_API_KEY=
+ETSY_API_KEY=<from developers.etsy.com>
+ETSY_API_SECRET=<from developers.etsy.com>
+ETSY_ACCESS_TOKEN=<auto-saved by setup_etsy_auth.py>
+ETSY_SHOP_ID=<auto-saved by get_shop_info.py>
+ETSY_SHIPPING_PROFILE_ID=<auto-saved by get_shop_info.py>
+PRINTFUL_API_KEY=<from printful dashboard>
 ```
 
-### 5. First full live run
-- `python main.py` with all credentials set
-- Check Printful dashboard for sync product
+### 4. Debug scraper API blocks (interim)
+- Etsy search returning 403, autocomplete returning 301
+- Pinterest trends API returning 404 for both GB and US
+- Google Trends hitting rate limits
+- Options: (a) use static keyword list, (b) add rotating proxies, (c) use alternative trend sources
+
+### 5. First Etsy draft listing creation
+- Run test with fixed keywords (bypass scraper)
+- Verify `publisher/publisher.py` can create Etsy draft listing with image
 - Check Etsy shop for draft listing
-- Review listing quality — adjust Gemini prompt in `generator/listing_generator.py` if needed
 
-### 6. Business setup (parallel)
-- Proton Mail account for business email separation
+### 6. First Printful sync (if step 5 succeeds)
+- Verify Printful product created successfully
+- Check mockup URLs are working
+
+### 7. Business setup (parallel, not blocking)
+- Proton Mail account ✓ (done)
 - Starling Bank business account
-- Bitwarden for password management
-- Register as sole trader when ready to start trading
-
-### 7. Affiliate branch (future)
-- Niche content site on GitHub Pages (zero hosting cost)
-- Not started — separate branch, never merge with `pod`
+- Bitwarden account ✓ (done — MCP server integration pending)
+- Register as sole trader when ready to trade
 
 ---
 
