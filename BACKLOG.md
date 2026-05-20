@@ -16,6 +16,16 @@ _Last updated: 2026-05-20_
 
 ---
 
+## Dev environment — outstanding
+
+- [ ] **Install Node.js** — download LTS `.msi` from nodejs.org (do NOT use Chocolatey). Required for Bitwarden MCP server
+- [ ] **Check Python PATH after Chocolatey incident** — Chocolatey installed Python 3.14 to `C:\Python314\`, may conflict with project Python 3.13 at `C:\Users\nickc\AppData\Local\Python\python-3.13-64\`. Run `python --version` after terminal restart to verify 3.13 is still active for this project
+- [ ] **Install Bitwarden MCP server** — after Node.js: `npm install -g @bitwarden/mcp-server` + `npm install -g @bitwarden/cli`, then configure in Claude Code settings
+- [ ] **Create Proton Mail account** — proton.me, use for all business accounts
+- [ ] **Create Bitwarden account** — bitwarden.com, use Proton Mail address, store all credentials here
+
+---
+
 ## Business setup (run in parallel with technical work)
 
 - [ ] **Proton Mail** — separate business email address

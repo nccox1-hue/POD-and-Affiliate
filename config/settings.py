@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     etsy_api_key: str = ""
     etsy_api_secret: str = ""
     etsy_access_token: str = ""
+    etsy_refresh_token: str = ""
     etsy_shop_id: str = ""
 
     printful_api_key: str = ""

@@ -96,9 +96,12 @@ def main():
         return
 
     set_key(".env", "ETSY_ACCESS_TOKEN", data["access_token"])
-    print(f"\n✓ Etsy access token saved to .env")
-    print(f"  Token expires in: {data.get('expires_in', '?')}s")
-    print(f"  Refresh token: {data.get('refresh_token', 'N/A')[:20]}...")
+    if data.get("refresh_token"):
+        set_key(".env", "ETSY_REFRESH_TOKEN", data["refresh_token"])
+    print(f"\n✓ Etsy tokens saved to .env")
+    print(f"  Access token expires in: {data.get('expires_in', '?')}s (1 hour)")
+    print(f"  Refresh token saved: {'yes' if data.get('refresh_token') else 'no'}")
+    print(f"\nNext: run python get_shop_info.py to get your ETSY_SHOP_ID and shipping profile ID")
 
 
 if __name__ == "__main__":

@@ -8,6 +8,8 @@ OAuth setup: run `python setup_etsy_auth.py` once to get your access token.
 """
 import logging
 import aiohttp
+import httpx
+from dotenv import set_key
 from typing import Dict, Any, Optional, List
 from config.settings import settings
 
@@ -18,11 +20,41 @@ ETSY_API = "https://openapi.etsy.com/v3"
 
 class EtsyClient:
     def __init__(self):
+        self._access_token = settings.etsy_access_token
         self.headers = {
             "x-api-key": settings.etsy_api_key,
-            "Authorization": f"Bearer {settings.etsy_access_token}",
+            "Authorization": f"Bearer {self._access_token}",
             "Content-Type": "application/json",
         }
+
+    async def _refresh_token(self) -> bool:
+        """Refresh the Etsy access token using the refresh token. Updates .env and headers."""
+        if not settings.etsy_refresh_token:
+            logger.error("No ETSY_REFRESH_TOKEN in .env — re-run setup_etsy_auth.py")
+            return False
+        try:
+            resp = httpx.post(
+                "https://api.etsy.com/v3/public/oauth/token",
+                data={
+                    "grant_type": "refresh_token",
+                    "client_id": settings.etsy_api_key,
+                    "refresh_token": settings.etsy_refresh_token,
+                },
+            )
+            data = resp.json()
+            if "access_token" not in data:
+                logger.error("Etsy token refresh failed: %s", data)
+                return False
+            self._access_token = data["access_token"]
+            self.headers["Authorization"] = f"Bearer {self._access_token}"
+            set_key(".env", "ETSY_ACCESS_TOKEN", data["access_token"])
+            if data.get("refresh_token"):
+                set_key(".env", "ETSY_REFRESH_TOKEN", data["refresh_token"])
+            logger.info("Etsy access token refreshed successfully")
+            return True
+        except Exception as e:
+            logger.error("Etsy token refresh error: %s", e)
+            return False
 
     async def create_draft_listing(
         self,
@@ -58,20 +90,26 @@ class EtsyClient:
         # Remove None values
         payload = {k: v for k, v in payload.items() if v is not None}
 
-        try:
-            async with aiohttp.ClientSession(headers=self.headers) as session:
-                url = f"{ETSY_API}/application/shops/{settings.etsy_shop_id}/listings"
-                async with session.post(url, json=payload) as resp:
-                    data = await resp.json()
-                    if resp.status in (200, 201):
-                        listing_id = data.get("listing_id")
-                        logger.info("Etsy: draft listing created -> id=%s", listing_id)
-                        return data
-                    logger.error("Etsy listing error %s: %s", resp.status, data)
-                    return None
-        except Exception as e:
-            logger.error("Etsy create listing error: %s", e)
-            return None
+        for attempt in range(2):
+            try:
+                async with aiohttp.ClientSession(headers=self.headers) as session:
+                    url = f"{ETSY_API}/application/shops/{settings.etsy_shop_id}/listings"
+                    async with session.post(url, json=payload) as resp:
+                        data = await resp.json()
+                        if resp.status in (200, 201):
+                            listing_id = data.get("listing_id")
+                            logger.info("Etsy: draft listing created -> id=%s", listing_id)
+                            return data
+                        if resp.status == 401 and attempt == 0:
+                            logger.warning("Etsy 401 — attempting token refresh")
+                            if await self._refresh_token():
+                                continue
+                        logger.error("Etsy listing error %s: %s", resp.status, data)
+                        return None
+            except Exception as e:
+                logger.error("Etsy create listing error: %s", e)
+                return None
+        return None
 
     async def upload_listing_image(
         self,
