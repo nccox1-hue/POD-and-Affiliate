@@ -2,6 +2,7 @@
 Scheduler: scans for trends → generates designs → creates Etsy listings.
 Runs once every SCAN_INTERVAL_HOURS (default: 24h).
 """
+import asyncio
 import logging
 from datetime import datetime
 
@@ -64,7 +65,9 @@ class PODScheduler:
 
         # 3. Process top N
         successes = 0
-        for opportunity in fresh[:settings.listings_per_cycle]:
+        for i, opportunity in enumerate(fresh[:settings.listings_per_cycle]):
+            if i > 0:
+                await asyncio.sleep(10)  # avoid Gemini free-tier rate limit between listings
             try:
                 # Save trend record
                 async with AsyncSessionLocal() as db:

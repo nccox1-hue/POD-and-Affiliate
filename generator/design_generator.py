@@ -48,27 +48,35 @@ async def generate_design(
 
 async def _generate_pollinations(prompt: str, output_path: str) -> Optional[str]:
     """Pollinations.ai — free, no API key required."""
-    try:
-        # Enhance prompt for POD design quality
-        enhanced = (
-            f"{prompt}, t-shirt design, vector art style, clean white background, "
-            "bold graphic, print ready, no text unless specified, high contrast"
-        )
-        encoded = urllib.parse.quote(enhanced)
-        url = POLLINATIONS_URL.format(prompt=encoded)
-        url += "?width=1080&height=1080&nologo=true&seed=42"
+    enhanced = (
+        f"{prompt}, t-shirt design, vector art style, clean white background, "
+        "bold graphic, print ready, no text unless specified, high contrast"
+    )
+    encoded = urllib.parse.quote(enhanced)
+    url = POLLINATIONS_URL.format(prompt=encoded)
+    url += "?width=1080&height=1080&seed=42"
 
-        async with httpx.AsyncClient(timeout=60) as client:
-            resp = await client.get(url, follow_redirects=True)
-            resp.raise_for_status()
-            with open(output_path, "wb") as f:
-                f.write(resp.content)
+    for attempt in range(3):
+        try:
+            async with httpx.AsyncClient(timeout=60) as client:
+                resp = await client.get(url, follow_redirects=True)
+                resp.raise_for_status()
+                with open(output_path, "wb") as f:
+                    f.write(resp.content)
+            logger.info("Design generated (Pollinations): %s", output_path)
+            return output_path
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 402:
+                logger.error("Pollinations 402 — request not accepted on free tier")
+                return None
+            logger.warning("Pollinations attempt %d/3 failed: %s", attempt + 1, e)
+        except Exception as e:
+            logger.warning("Pollinations attempt %d/3 failed: %s", attempt + 1, e)
+        if attempt < 2:
+            await asyncio.sleep(5)
 
-        logger.info("Design generated (Pollinations): %s", output_path)
-        return output_path
-    except Exception as e:
-        logger.error("Pollinations generation failed: %s", e)
-        return None
+    logger.error("Pollinations failed after 3 attempts")
+    return None
 
 
 async def _generate_stability(prompt: str, output_path: str) -> Optional[str]:

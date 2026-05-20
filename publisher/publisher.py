@@ -2,6 +2,7 @@
 Orchestrates the full pipeline for one design opportunity:
 trend keyword → design prompt → image → listing copy → Printful product → Etsy listing
 """
+import asyncio
 import logging
 from datetime import datetime
 from pathlib import Path
@@ -51,6 +52,8 @@ class Publisher:
         design_url = await self.printful.upload_design_file(image_path, f"{filename}.png")
 
         # 4. Generate listing copy (title, description, tags)
+        # Brief pause to avoid Gemini free-tier rate limit (design prompt + listing = 2 calls/listing)
+        await asyncio.sleep(15)
         product_id = settings.product_id_list[0] if settings.product_id_list else 71
         product_name = PRODUCT_VARIANTS.get(product_id, {}).get("name", "T-Shirt")
         listing = await generate_listing(keyword, theme, product_name)

@@ -17,13 +17,19 @@ async def get_pinterest_trends(country: str = "GB") -> List[Dict[str, Any]]:
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         "Referer": "https://trends.pinterest.com/",
     }
-    try:
-        async with httpx.AsyncClient(timeout=15, headers=headers) as client:
-            resp = await client.get(
-                PINTEREST_TRENDS_URL,
-                params={"country_code": country, "limit": 50},
-            )
-            data = resp.json()
+    # GB not always supported — fall back to US
+    countries = [country, "US"] if country != "US" else ["US"]
+    for country_code in countries:
+        try:
+            async with httpx.AsyncClient(timeout=15, headers=headers, follow_redirects=True) as client:
+                resp = await client.get(
+                    PINTEREST_TRENDS_URL,
+                    params={"country_code": country_code, "limit": 50},
+                )
+                if resp.status_code != 200:
+                    logger.debug("Pinterest trends %s returned %d", country_code, resp.status_code)
+                    continue
+                data = resp.json()
             results = []
             for i, item in enumerate(data.get("trending_searches", [])):
                 trend_name = item.get("normalized_term") or item.get("term", "")
@@ -33,8 +39,8 @@ async def get_pinterest_trends(country: str = "GB") -> List[Dict[str, Any]]:
                         "source": "pinterest_trends",
                         "score": max(0.0, 100.0 - (i * 2)),
                     })
-            logger.info("Pinterest Trends: %d trends found", len(results))
+            logger.info("Pinterest Trends (%s): %d trends found", country_code, len(results))
             return results
-    except Exception as e:
-        logger.debug("Pinterest trends failed: %s", e)
-        return []
+        except Exception as e:
+            logger.debug("Pinterest trends failed for %s: %s", country_code, e)
+    return []

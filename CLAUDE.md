@@ -159,6 +159,22 @@ PRINTFUL_API_KEY=
 - Price multiplier: 2.5x → ~£25 retail
 - Configured in `.env` as `PRICE_MULTIPLIER=2.5`
 
+## Versioning
+
+Git tags only — no VERSION file, no CHANGELOG. Tag at milestones, not every session.
+
+| Tag | Milestone |
+|-----|-----------|
+| `v0.1.0` | Pipeline verified end-to-end: Gemini returns content, Pollinations returns image |
+| `v0.2.0` | First Etsy draft listing created successfully via API |
+| `v0.3.0` | First Printful product synced |
+| `v1.0.0` | Full live run: all credentials set, Printful + Etsy both working in one cycle |
+| `v1.x.0` | Significant feature additions post-launch (Telegram alerts, A/B copy, etc.) |
+
+Tag format: `git tag v0.x.0 -m "short description of milestone"`
+
+---
+
 ## Business model
 
 - Sole trader to start

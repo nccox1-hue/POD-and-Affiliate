@@ -17,7 +17,7 @@ env/
 data/
 
 # IDE / tools
-.claude/
+.claude/settings.local.json
 .vscode/
 .idea/
 

@@ -51,16 +51,22 @@ Output ONLY valid JSON:
         )
         return response.text.strip()
 
-    try:
-        raw = await asyncio.get_event_loop().run_in_executor(None, _call)
-        if raw.startswith("```"):
-            raw = raw.split("```")[1]
-            if raw.startswith("json"):
-                raw = raw[4:]
-        return json.loads(raw.strip())
-    except Exception as e:
-        logger.error("Listing generation error: %s", e)
-        return _fallback_listing(keyword, product_type)
+    for attempt in range(2):
+        try:
+            raw = await asyncio.get_event_loop().run_in_executor(None, _call)
+            if raw.startswith("```"):
+                raw = raw.split("```")[1]
+                if raw.startswith("json"):
+                    raw = raw[4:]
+            return json.loads(raw.strip())
+        except Exception as e:
+            if "429" in str(e) and attempt == 0:
+                logger.warning("Gemini rate limited — retrying in 45s")
+                await asyncio.sleep(45)
+                continue
+            logger.error("Listing generation error: %s", e)
+            return _fallback_listing(keyword, product_type)
+    return _fallback_listing(keyword, product_type)
 
 
 def _fallback_listing(keyword: str, product_type: str) -> Dict[str, Any]:

@@ -18,7 +18,7 @@ async def get_etsy_autocomplete(query: str) -> List[str]:
     """Get Etsy search suggestions for a keyword — shows what buyers are searching."""
     headers = {"x-detected-locale": "GBP|en-GB|GB", "User-Agent": "Mozilla/5.0"}
     try:
-        async with httpx.AsyncClient(timeout=10, headers=headers) as client:
+        async with httpx.AsyncClient(timeout=10, headers=headers, follow_redirects=True) as client:
             resp = await client.get(
                 "https://completion.etsy.com/ajax/completion",
                 params={"query": query, "limit": 10, "source": "topnav"},
