@@ -1,6 +1,6 @@
 # POD-and-Affiliate — Backlog
 
-_Last updated: 2026-05-20_
+_Last updated: 2026-05-21_
 
 ---
 
@@ -21,18 +21,18 @@ _Last updated: 2026-05-20_
 - [ ] **Install Node.js** — download LTS `.msi` from nodejs.org (do NOT use Chocolatey). Required for Bitwarden MCP server
 - [ ] **Check Python PATH after Chocolatey incident** — Chocolatey installed Python 3.14 to `C:\Python314\`, may conflict with project Python 3.13 at `C:\Users\nickc\AppData\Local\Python\python-3.13-64\`. Run `python --version` after terminal restart to verify 3.13 is still active for this project
 - [ ] **Install Bitwarden MCP server** — after Node.js: `npm install -g @bitwarden/mcp-server` + `npm install -g @bitwarden/cli`, then configure in Claude Code settings
-- [ ] **Create Proton Mail account** — proton.me, use for all business accounts
-- [ ] **Create Bitwarden account** — bitwarden.com, use Proton Mail address, store all credentials here
+- [x] **Create Proton Mail account** — shop.2026.uk@proton.me (display name: Shop 2026)
+- [x] **Create Bitwarden account** — done (MCP integration abandoned, use web vault)
 
 ---
 
 ## Business setup (run in parallel with technical work)
 
-- [ ] **Proton Mail** — separate business email address
-- [ ] **Starling Bank business account** — all trading income/outgoings through here
-- [ ] **Bitwarden** — password manager for all credentials
-- [ ] **Register as sole trader** — HMRC, once trading begins (can do before first sale)
-- [ ] **Decide business name** — needed for Etsy shop, sole trader registration, Starling
+- [x] **Proton Mail** — shop.2026.uk@proton.me
+- [ ] **Monzo Business Pro** — £9/month, 2 months free — application in progress
+- [x] **Bitwarden** — done (MCP integration abandoned)
+- [ ] **Register as sole trader** — Nick Cox Digital, SIC 74100, HMRC — do before first sale
+- [x] **Decide business name** — Nick Cox Digital (sole trader), NickPrintCo (Etsy shop)
 
 ---
 
@@ -84,6 +84,12 @@ _Last updated: 2026-05-20_
 | 2026-05-19 | Listings created as drafts | Review before publish — avoids live mistakes during setup |
 | 2026-05-19 | Pricing at 2.5x Printful base | ~50% margin after Etsy fees on £25 retail |
 | 2026-05-19 | Python 3.13 on Windows | Current machine setup |
+| 2026-05-21 | Sole trader name: Nick Cox Digital | Broad enough to cover POD, trading, automation |
+| 2026-05-21 | Etsy shop name: NickPrintCo | Personal brand, available on Etsy |
+| 2026-05-21 | Bank: Monzo Business Pro £9/month | Tax pots on paid tier, familiar app |
+| 2026-05-21 | SIC code: 74100 | Specialised Design Activities — covers AI/POD work |
+| 2026-05-21 | Abandoned Starling in favour of Monzo | Already banking with Monzo personally |
+| 2026-05-21 | PLAN.md as session anchor | Prevent tangents — open first every session |
 
 ---
 

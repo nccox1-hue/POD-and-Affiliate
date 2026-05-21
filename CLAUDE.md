@@ -2,6 +2,9 @@
 
 Project context for Claude Code sessions. Keep this updated at the end of each session.
 
+> **START EVERY SESSION HERE:** Open [PLAN.md](PLAN.md) first. Work the next unchecked item. Do not deviate until it is done.
+> **Business context:** See [BUSINESS_PLAN.md](BUSINESS_PLAN.md) for full business plan, financials, and milestones.
+
 ---
 
 ## Project overview
@@ -68,70 +71,38 @@ Dashboard: http://localhost:8081
 
 ---
 
-## Current status (session: 2026-05-20)
+## Current status (session: 2026-05-21)
 
 ### v0.1.0 COMPLETE ✓
-- **Gemini + Pollinations pipeline verified end-to-end** via `test_v0_1_0.py`
-- Gemini Flash successfully generates design prompts and Etsy listing copy
-- Pollinations.ai successfully generates print-ready PNG designs (81KB test image confirmed)
-- Rate-limit retry logic confirmed working (Gemini 429 handling, Pollinations 402 handling)
-- Python 3.13 environment stable (Chocolatey Python 3.14 doesn't interfere)
-- All core dependencies installed: uvicorn, google-genai, fastapi, SQLAlchemy, aiohttp, httpx, etc.
+- Gemini + Pollinations pipeline verified end-to-end
+- 4 design jobs in database (design_only status — no live credentials yet)
+- All core dependencies installed and stable
 
-### Outstanding for v0.2.0 + live run
-- Etsy seller account + developer registration
-- Etsy OAuth token (run `setup_etsy_auth.py`)
-- Etsy shop ID + shipping profile ID retrieval (run `get_shop_info.py`)
-- Printful account + API key generation
-- Fill `.env` with all credentials
-- Fix scraper API blocks (Etsy returning 403, Pinterest returning 404) — may need different approach or throttling
+### Business setup — decisions made this session
+- **Sole trader name:** Nick Cox Digital
+- **Etsy shop name:** NickPrintCo (account created, shop setup blocked on bank)
+- **Business email:** shop.2026.uk@proton.me (Proton Mail, display name: Shop 2026)
+- **Business bank:** Monzo Business Pro — £9/month, 2 months free (application in progress)
+- **SIC code:** 74100 — Specialised Design Activities
+- **Business plan:** written and saved as `BUSINESS_PLAN.md`
+- **Master plan:** written and saved as `PLAN.md` — open this first every session
+
+### Current blocker
+Etsy shop setup requires bank account to complete. Monzo Business Pro application in progress. Once approved, return to complete Etsy seller onboarding, then proceed with developer app registration.
+
+### Outstanding for v0.2.0
+- Monzo Business Pro approval
+- Complete Etsy shop setup (NickPrintCo)
+- Register Etsy developer app → get `ETSY_API_KEY` + `ETSY_API_SECRET`
+- Run `setup_etsy_auth.py` → `ETSY_ACCESS_TOKEN` + `ETSY_REFRESH_TOKEN`
+- Run `get_shop_info.py` → `ETSY_SHOP_ID` + `ETSY_SHIPPING_PROFILE_ID`
+- Create Printful account + generate `PRINTFUL_API_KEY`
+- Register as sole trader (Nick Cox Digital) before first sale
 
 ---
 
-## Next steps — v0.2.0 (Etsy API integration)
-
-### 1. Set up Etsy seller + developer account
-- Create Etsy seller account (if not already done): etsy.com
-- Register as developer: etsy.com/developers
-- Create an app to get `ETSY_API_KEY` and `ETSY_API_SECRET`
-- Run `setup_etsy_auth.py` once to complete OAuth and get `ETSY_ACCESS_TOKEN`
-- Run `get_shop_info.py` to fetch `ETSY_SHOP_ID` + `ETSY_SHIPPING_PROFILE_ID` automatically
-
-### 2. Set up Printful account
-- Create account: printful.com
-- Dashboard → Stores → Connect a store (Etsy)
-- API → Generate token → add as `PRINTFUL_API_KEY` in `.env`
-
-### 3. Fill `.env` with all credentials
-```
-ETSY_API_KEY=<from developers.etsy.com>
-ETSY_API_SECRET=<from developers.etsy.com>
-ETSY_ACCESS_TOKEN=<auto-saved by setup_etsy_auth.py>
-ETSY_SHOP_ID=<auto-saved by get_shop_info.py>
-ETSY_SHIPPING_PROFILE_ID=<auto-saved by get_shop_info.py>
-PRINTFUL_API_KEY=<from printful dashboard>
-```
-
-### 4. Debug scraper API blocks (interim)
-- Etsy search returning 403, autocomplete returning 301
-- Pinterest trends API returning 404 for both GB and US
-- Google Trends hitting rate limits
-- Options: (a) use static keyword list, (b) add rotating proxies, (c) use alternative trend sources
-
-### 5. First Etsy draft listing creation
-- Run test with fixed keywords (bypass scraper)
-- Verify `publisher/publisher.py` can create Etsy draft listing with image
-- Check Etsy shop for draft listing
-
-### 6. First Printful sync (if step 5 succeeds)
-- Verify Printful product created successfully
-- Check mockup URLs are working
-
-### 7. Business setup (parallel, not blocking)
-- Proton Mail account ✓ (done)
-- Starling Bank business account
-- Bitwarden account ✓ (done — MCP server integration pending)
-- Register as sole trader when ready to trade
+## Next steps
+See [PLAN.md](PLAN.md) — work top to bottom, one item at a time.
 
 ---
 
@@ -179,4 +150,4 @@ Tag format: `git tag v0.x.0 -m "short description of milestone"`
 
 - Sole trader to start
 - Convert to Ltd company when profit hits ~£25k/year
-- All business income through Starling Bank business account
+- All business income through Monzo Business Pro account
