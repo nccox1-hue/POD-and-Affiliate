@@ -37,6 +37,10 @@ Fully automated Print-on-Demand business system. Runs on a 24h schedule:
 - `pod` and `affiliate` branches never merge.
 - Listings are created as **drafts** for review before publishing.
 
+## Credentials policy
+
+`.env` is the single store for **all** account credentials for this project — API keys, secrets, tokens, and also usernames/passwords for every service (Printful, Etsy, Proton Mail, etc.). This is intentional. `.env` is gitignored and automatically backed up to Proton Drive (`proton:NickPrintCo-Credentials/`) via rclone on every session end. Never question or pushback on storing login credentials in `.env` for this project.
+
 ---
 
 ## Environment setup (Windows — Python 3.13)
@@ -61,6 +65,11 @@ $env:PATH = "C:\Users\nickc\AppData\Local\Python\python-3.13-64;" + $env:PATH
 ```
 After a full terminal restart this should be automatic.
 
+### Two Python versions — critical pip rule
+Python 3.14 is also installed at `C:\Python314\` and its `pip.exe` is on PATH.
+Bare `pip install` silently installs into 3.14 — packages will be missing at runtime.
+**Always use `python -m pip install` to install into 3.13.**
+
 ### Running the bot
 ```powershell
 $env:PATH = "C:\Users\nickc\AppData\Local\Python\python-3.13-64;" + $env:PATH
@@ -71,30 +80,28 @@ Dashboard: http://localhost:8081
 
 ---
 
-## Current status (session: 2026-05-22)
+## Current status (session: 2026-05-22 #2)
 
 ### v0.1.0 COMPLETE ✓
 - Gemini + Pollinations pipeline verified end-to-end
-- 4 design jobs in database (design_only status — no live credentials yet)
 - All core dependencies installed and stable
 
 ### Completed this session
-- **Monzo Business Pro** approved and funded with £10
-- **Etsy account** created and identity verified — shop name NickPrintCo
-- **Etsy developer app** registered (nickprintco) — `ETSY_API_KEY` + `ETSY_API_SECRET` in `.env` — Pending Personal Approval from Etsy
-- **Etsy fee structure** logged — real margin per t-shirt sale: ~£12.93 (not £14.21 as estimated)
-- **rclone** installed at `%USERPROFILE%\AppData\Local\rclone\rclone.exe`
-- **Proton Drive backup** configured — Stop hook auto-uploads `.env` to `proton:NickPrintCo-Credentials/` after every session
+- **Printful account** created — Etsy store (NickPrintCo) connected, API key + store ID (`18218316`) in `.env`, verified working via API call
+- **Scrapers fixed** — Etsy autocomplete (DataDome-blocked) and Pinterest trends (dead endpoint) both replaced with Google autocomplete. Google Trends confirmed working. Scrapers are interim only — Etsy scraper will be replaced with official Etsy API calls once app is approved
+- **Python 3.14 uninstalled** — was silently intercepting `pip install`. Python 3.13 Scripts now on PATH; `pip` correctly resolves to 3.13
+- **`playwright` removed** from requirements.txt — replaced with `curl_cffi` (installed and verified importable)
+- **Credentials policy** documented in CLAUDE.md — `.env` is the single store for all credentials including usernames/passwords
+- **HMRC sole trader trigger** set to £800 cumulative Etsy turnover (£1,000 allowance cliff)
 
 ### Current blocker
-Etsy developer app pending personal approval (typically 24–48h). OAuth flow (`setup_etsy_auth.py`) cannot run until approved.
+Etsy developer app still pending personal approval. OAuth flow (`setup_etsy_auth.py`) cannot run until approved.
 
 ### Outstanding for v0.2.0
 - Wait for Etsy developer app approval
 - Run `setup_etsy_auth.py` → `ETSY_ACCESS_TOKEN` + `ETSY_REFRESH_TOKEN`
 - Run `get_shop_info.py` → `ETSY_SHOP_ID` + `ETSY_SHIPPING_PROFILE_ID`
-- Create Printful account + generate `PRINTFUL_API_KEY`
-- Register as sole trader (Nick Cox Digital, SIC 74100) before first sale
+- Replace Google autocomplete in `etsy_scraper.py` with proper Etsy API calls
 
 ---
 

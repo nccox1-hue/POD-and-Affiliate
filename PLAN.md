@@ -45,9 +45,11 @@
 ## Stage 4 — Fix Scrapers
 > Status: **Blocked on Stage 3** (pipeline can run without scrapers using fixed keywords)
 
-- [ ] **[Claude]** Fix Etsy autocomplete (currently returning 403)
-- [ ] **[Claude]** Fix Pinterest trends (currently returning 404)
-- [ ] **[Claude]** Fix Google Trends rate limiting
+- [x] **[Claude]** Etsy autocomplete (403) — interim fix: Google autocomplete in place as bridge
+- [x] **[Claude]** Pinterest trends (404) — interim fix: Google autocomplete with discovery/gift context queries
+- [x] **[Claude]** Google Trends — working, no fix needed
+- [ ] **[Claude]** Replace `etsy_scraper.py` Google autocomplete with proper Etsy API calls — do this immediately after Etsy API credentials are confirmed working (Stage 1/2)
+- [ ] **[Claude]** Decide whether to add Pinterest v5 OAuth API — only if keyword quality proves a bottleneck post-launch
 
 ---
 
@@ -66,7 +68,7 @@
 - [x] **[Nick]** Proton Mail — shop.2026.uk@proton.me
 - [x] **[Nick]** Bitwarden account
 - [x] **[Nick]** Monzo Business Pro account — approved, funded with £10
-- [ ] **[Nick]** Register as sole trader (when ready to trade)
+- [ ] **[Nick]** Register as sole trader with HMRC for Self Assessment — trigger: cumulative Etsy turnover reaches £800 (£1,000 allowance cliff, register before crossing it)
 
 ---
 

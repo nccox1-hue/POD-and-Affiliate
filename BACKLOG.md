@@ -1,6 +1,6 @@
 # POD-and-Affiliate — Backlog
 
-_Last updated: 2026-05-21_
+_Last updated: 2026-05-22_
 
 ---
 
@@ -10,8 +10,8 @@ _Last updated: 2026-05-21_
 - [ ] **Create Etsy seller account** — etsy.com → sell on Etsy
 - [ ] **Register Etsy developer app** — etsy.com/developers → get `ETSY_API_KEY` + `ETSY_API_SECRET`
 - [ ] **Run `setup_etsy_auth.py`** — completes OAuth, writes `ETSY_ACCESS_TOKEN` to `.env`
-- [ ] **Create Printful account** — printful.com → Dashboard → Stores → Connect Etsy → API → Generate token
-- [ ] **Fill `.env`** — all empty values: `ETSY_API_KEY`, `ETSY_API_SECRET`, `ETSY_ACCESS_TOKEN`, `ETSY_SHOP_ID`, `PRINTFUL_API_KEY`, `ETSY_SHIPPING_PROFILE_ID`
+- [x] **Create Printful account** — done, Etsy store connected, `PRINTFUL_API_KEY` + `PRINTFUL_STORE_ID` in `.env`, verified via API
+- [ ] **Fill `.env`** — remaining empty values: `ETSY_ACCESS_TOKEN`, `ETSY_REFRESH_TOKEN`, `ETSY_SHOP_ID`, `ETSY_SHIPPING_PROFILE_ID` (blocked on Etsy app approval)
 - [ ] **First full live run** — `python main.py`, check Printful dashboard + Etsy drafts
 
 ---
@@ -19,7 +19,7 @@ _Last updated: 2026-05-21_
 ## Dev environment — outstanding
 
 - [ ] **Install Node.js** — download LTS `.msi` from nodejs.org (do NOT use Chocolatey). Required for Bitwarden MCP server
-- [ ] **Check Python PATH after Chocolatey incident** — Chocolatey installed Python 3.14 to `C:\Python314\`, may conflict with project Python 3.13 at `C:\Users\nickc\AppData\Local\Python\python-3.13-64\`. Run `python --version` after terminal restart to verify 3.13 is still active for this project
+- [x] **Python 3.14 conflict resolved** — Python 3.14 uninstalled. Python 3.13 Scripts added to PATH. `pip` now correctly resolves to 3.13
 - [ ] **Install Bitwarden MCP server** — after Node.js: `npm install -g @bitwarden/mcp-server` + `npm install -g @bitwarden/cli`, then configure in Claude Code settings
 - [x] **Create Proton Mail account** — shop.2026.uk@proton.me (display name: Shop 2026)
 - [x] **Create Bitwarden account** — done (MCP integration abandoned, use web vault)
@@ -29,7 +29,7 @@ _Last updated: 2026-05-21_
 ## Business setup (run in parallel with technical work)
 
 - [x] **Proton Mail** — shop.2026.uk@proton.me
-- [ ] **Monzo Business Pro** — £9/month, 2 months free — application in progress
+- [x] **Monzo Business Pro** — approved, funded with £10
 - [x] **Bitwarden** — done (MCP integration abandoned)
 - [ ] **Register as sole trader** — Nick Cox Digital, SIC 74100, HMRC — do before first sale
 - [x] **Decide business name** — Nick Cox Digital (sole trader), NickPrintCo (Etsy shop)
@@ -104,6 +104,10 @@ _Last updated: 2026-05-21_
 | 2026-05-22 | rclone + Proton Drive for .env backup | Automated, E2E encrypted, runs on every Stop hook |
 | 2026-05-22 | Etsy listing currency set to GBP | Avoids 2.5% currency conversion fee on every sale |
 | 2026-05-22 | Offsite Ads opted out | Optional below ~$10k/year; adds 12-15% cost if enabled |
+| 2026-05-22 | Etsy/Pinterest scrapers → Google autocomplete (interim) | Both original endpoints dead/blocked (DataDome + 404). Official Etsy API replaces this once approved |
+| 2026-05-22 | playwright removed → curl_cffi | playwright unused and heavyweight; curl_cffi needed for Cloudflare bypass attempts |
+| 2026-05-22 | HMRC sole trader registration trigger: £800 cumulative Etsy turnover | £1,000 trading allowance is a cliff — register before crossing it |
+| 2026-05-22 | Python 3.14 uninstalled | Was silently intercepting pip installs, causing wrong-version package installs |
 
 ---
 

@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     etsy_shop_id: str = ""
 
     printful_api_key: str = ""
+    printful_store_id: str = ""
     stability_api_key: str = ""
 
     log_level: str = "INFO"
