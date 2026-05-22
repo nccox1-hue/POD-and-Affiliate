@@ -52,7 +52,13 @@ _Last updated: 2026-05-22_
 
 - [ ] **Transaction log in SQLite** — add a `transactions` table to the existing database: date, type (sale/fee/payout), amount, currency, source (Etsy/Printful/Monzo), reference ID
 - [ ] **Etsy payout reconciliation** — pull Etsy Payments ledger via API, match against orders, log net margin per sale after all fees
-- [ ] **Monzo API integration** — pull business account transactions via Monzo API, cross-reference with Etsy payouts
+- [ ] **Monzo API integration** — pull business account transactions via Monzo API (`api.monzo.com`), cross-reference with Etsy payouts
+  - Auth: OAuth2 — register app at developers.monzo.com, get client ID + secret, run OAuth flow, store tokens in `.env`
+  - Key endpoints: `GET /transactions` (full ledger), `GET /balance` (current balance + total spent), `GET /accounts` (account ID needed for all calls)
+  - Use case 1: auto-reconcile Etsy payouts — match Monzo credit entries against expected Etsy payout amounts, flag discrepancies
+  - Use case 2: running P&L — pull all debits (Printful charges, Etsy fees, subscriptions) and credits (Etsy payouts), calculate net per month
+  - Use case 3: tax pot logic — on each Etsy payout credit, calculate 20% and log it as "reserved for self-assessment" (Monzo Pots API can move money automatically if Business Pro supports it)
+  - **Caveat:** Monzo Business Pro API access requires contacting Monzo developer support — personal OAuth works out of the box but business accounts may need manual approval. Verify this before building.
 - [ ] **Monthly P&L summary** — auto-generate: gross sales, Etsy fees, Printful costs, net profit, VAT headroom vs £90k threshold
 - [ ] **Self-assessment prep export** — annual CSV of all income and allowable expenses, ready for HMRC submission
 - [ ] **Tax pot automation** — flag 20% of each Etsy payout as reserved for self-assessment (could use Monzo pot via API)
