@@ -111,15 +111,23 @@ The business is powered by a custom-built Python automation pipeline:
 
 Revenue is generated on each Etsy sale. Printful fulfils the order and deducts their base cost. The remainder is the gross margin.
 
-**Per-unit economics (t-shirt example):**
+**Per-unit economics (t-shirt example at £25 sell price):**
 
-| Item | Amount |
-|---|---|
-| Sell price | £25.00 |
-| Printful base cost | −£9.00 |
-| Etsy transaction fee (6.5%) | −£1.63 |
-| Etsy listing fee | −£0.16 |
-| **Gross margin per sale** | **~£14.21** |
+| Item | Amount | Notes |
+|---|---|---|
+| Sell price | £25.00 | |
+| Printful base cost | −£9.00 | Bella+Canvas 3001 |
+| Listing fee | −£0.16 | $0.20 USD per listing (on creation, not per sale) |
+| Transaction fee | −£1.63 | 6.5% of order total |
+| Payment processing fee | −£1.20 | 4% of order total + £0.20 |
+| Regulatory Operating fee | −£0.08 | 0.32% of order total |
+| **Gross margin per sale** | **~£12.93** | Assumes GBP listing currency |
+
+**Fee notes:**
+- **Set listing currency to GBP** — avoids the 2.5% currency conversion fee
+- **Offsite Ads: opt out** — optional for most sellers; mandatory only above ~$10k/year sales. Adds 12-15% cost if enabled
+- **One-time setup fee: £14** — paid on account creation, sunk cost
+- Listing fee is charged per listing created/renewed, not per sale — amortised above assuming one sale per listing minimum
 
 **Additional revenue streams (planned):**
 
@@ -163,8 +171,11 @@ Revenue is generated on each Etsy sale. Printful fulfils the order and deducts t
 | Item | Cost |
 |---|---|
 | Printful (per order) | Deducted from sale — no upfront cost |
-| Etsy listing fees | ~£0.16 per listing |
-| Etsy transaction fees | 6.5% per sale |
+| Etsy one-time setup fee | £14.00 (paid) |
+| Etsy listing fee | ~£0.16 per listing ($0.20 USD) |
+| Etsy transaction fee | 6.5% per sale |
+| Etsy payment processing | 4% + £0.20 per sale |
+| Etsy regulatory fee | 0.32% per sale |
 | Pipeline hosting | £0 (runs locally) |
 | AI services | £0 (Gemini free tier, Pollinations free) |
 | Business bank account | £9/month Monzo Business Pro (free months 1-2) |

@@ -16,8 +16,8 @@
 ## Stage 1 — Accounts & Credentials
 > Status: **IN PROGRESS — current blocker**
 
-- [ ] **[Nick]** Create Etsy seller account at etsy.com
-- [ ] **[Nick]** Register Etsy developer app at etsy.com/developers → get `ETSY_API_KEY` + `ETSY_API_SECRET`
+- [x] **[Nick]** Create Etsy seller account at etsy.com — approved ✓
+- [x] **[Nick]** Register Etsy developer app at etsy.com/developers → get `ETSY_API_KEY` + `ETSY_API_SECRET` (app: nickprintco — Pending Personal Approval)
 - [ ] **[Nick]** Run `setup_etsy_auth.py` → auto-saves `ETSY_ACCESS_TOKEN` + `ETSY_REFRESH_TOKEN`
 - [ ] **[Nick]** Run `get_shop_info.py` → auto-saves `ETSY_SHOP_ID` + `ETSY_SHIPPING_PROFILE_ID`
 - [ ] **[Nick]** Create Printful account at printful.com → connect Etsy store → generate `PRINTFUL_API_KEY`
@@ -65,7 +65,7 @@
 
 - [x] **[Nick]** Proton Mail — shop.2026.uk@proton.me
 - [x] **[Nick]** Bitwarden account
-- [ ] **[Nick]** Monzo Business Pro account — £9/month, 2 months free (application in progress)
+- [x] **[Nick]** Monzo Business Pro account — approved, funded with £10
 - [ ] **[Nick]** Register as sole trader (when ready to trade)
 
 ---

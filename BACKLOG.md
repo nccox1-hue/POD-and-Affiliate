@@ -48,6 +48,17 @@ _Last updated: 2026-05-21_
 
 ---
 
+## Financial tracking (automate later)
+
+- [ ] **Transaction log in SQLite** — add a `transactions` table to the existing database: date, type (sale/fee/payout), amount, currency, source (Etsy/Printful/Monzo), reference ID
+- [ ] **Etsy payout reconciliation** — pull Etsy Payments ledger via API, match against orders, log net margin per sale after all fees
+- [ ] **Monzo API integration** — pull business account transactions via Monzo API, cross-reference with Etsy payouts
+- [ ] **Monthly P&L summary** — auto-generate: gross sales, Etsy fees, Printful costs, net profit, VAT headroom vs £90k threshold
+- [ ] **Self-assessment prep export** — annual CSV of all income and allowable expenses, ready for HMRC submission
+- [ ] **Tax pot automation** — flag 20% of each Etsy payout as reserved for self-assessment (could use Monzo pot via API)
+
+---
+
 ## Medium-term ideas
 
 - [ ] **A/B test listing copy** — generate two variants per keyword, track which converts better via Etsy stats
@@ -90,6 +101,9 @@ _Last updated: 2026-05-21_
 | 2026-05-21 | SIC code: 74100 | Specialised Design Activities — covers AI/POD work |
 | 2026-05-21 | Abandoned Starling in favour of Monzo | Already banking with Monzo personally |
 | 2026-05-21 | PLAN.md as session anchor | Prevent tangents — open first every session |
+| 2026-05-22 | rclone + Proton Drive for .env backup | Automated, E2E encrypted, runs on every Stop hook |
+| 2026-05-22 | Etsy listing currency set to GBP | Avoids 2.5% currency conversion fee on every sale |
+| 2026-05-22 | Offsite Ads opted out | Optional below ~$10k/year; adds 12-15% cost if enabled |
 
 ---
 

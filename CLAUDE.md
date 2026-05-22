@@ -71,33 +71,30 @@ Dashboard: http://localhost:8081
 
 ---
 
-## Current status (session: 2026-05-21)
+## Current status (session: 2026-05-22)
 
 ### v0.1.0 COMPLETE ✓
 - Gemini + Pollinations pipeline verified end-to-end
 - 4 design jobs in database (design_only status — no live credentials yet)
 - All core dependencies installed and stable
 
-### Business setup — decisions made this session
-- **Sole trader name:** Nick Cox Digital
-- **Etsy shop name:** NickPrintCo (account created, shop setup blocked on bank)
-- **Business email:** shop.2026.uk@proton.me (Proton Mail, display name: Shop 2026)
-- **Business bank:** Monzo Business Pro — £9/month, 2 months free (application in progress)
-- **SIC code:** 74100 — Specialised Design Activities
-- **Business plan:** written and saved as `BUSINESS_PLAN.md`
-- **Master plan:** written and saved as `PLAN.md` — open this first every session
+### Completed this session
+- **Monzo Business Pro** approved and funded with £10
+- **Etsy account** created and identity verified — shop name NickPrintCo
+- **Etsy developer app** registered (nickprintco) — `ETSY_API_KEY` + `ETSY_API_SECRET` in `.env` — Pending Personal Approval from Etsy
+- **Etsy fee structure** logged — real margin per t-shirt sale: ~£12.93 (not £14.21 as estimated)
+- **rclone** installed at `%USERPROFILE%\AppData\Local\rclone\rclone.exe`
+- **Proton Drive backup** configured — Stop hook auto-uploads `.env` to `proton:NickPrintCo-Credentials/` after every session
 
 ### Current blocker
-Etsy shop setup requires bank account to complete. Monzo Business Pro application in progress. Once approved, return to complete Etsy seller onboarding, then proceed with developer app registration.
+Etsy developer app pending personal approval (typically 24–48h). OAuth flow (`setup_etsy_auth.py`) cannot run until approved.
 
 ### Outstanding for v0.2.0
-- Monzo Business Pro approval
-- Complete Etsy shop setup (NickPrintCo)
-- Register Etsy developer app → get `ETSY_API_KEY` + `ETSY_API_SECRET`
+- Wait for Etsy developer app approval
 - Run `setup_etsy_auth.py` → `ETSY_ACCESS_TOKEN` + `ETSY_REFRESH_TOKEN`
 - Run `get_shop_info.py` → `ETSY_SHOP_ID` + `ETSY_SHIPPING_PROFILE_ID`
 - Create Printful account + generate `PRINTFUL_API_KEY`
-- Register as sole trader (Nick Cox Digital) before first sale
+- Register as sole trader (Nick Cox Digital, SIC 74100) before first sale
 
 ---
 
