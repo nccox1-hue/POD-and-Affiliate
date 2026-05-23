@@ -1,6 +1,6 @@
 # POD-and-Affiliate — Backlog
 
-_Last updated: 2026-05-23_
+_Last updated: 2026-05-23 (session 2)_
 
 ---
 
@@ -9,13 +9,17 @@ _Last updated: 2026-05-23_
 - [x] **Verify Gemini end-to-end** — confirmed working (hits free tier daily quota limit quickly; falls back to generic copy when exhausted)
 - [x] **Create Etsy seller account** — done, NickPrintCo live with 3 active listings and full shop profile
 - [x] **Register Etsy developer app** — first attempt denied, resubmitted 2026-05-23 with stronger description. Awaiting approval.
-- [ ] **Run `setup_etsy_auth.py`** — blocked on Etsy app approval
+- [x] **Run `setup_etsy_auth.py`** — done, tokens in .env
 - [x] **Create Printful account** — done, Etsy store connected, `PRINTFUL_API_KEY` + `PRINTFUL_STORE_ID` in `.env`, verified via API
-- [ ] **Fill `.env`** — remaining empty values: `ETSY_ACCESS_TOKEN`, `ETSY_REFRESH_TOKEN`, `ETSY_SHOP_ID`, `ETSY_SHIPPING_PROFILE_ID` (blocked on Etsy app approval)
+- [x] **Fill `.env`** — all Etsy values populated: `ETSY_ACCESS_TOKEN`, `ETSY_REFRESH_TOKEN`, `ETSY_SHOP_ID=66128682`, `ETSY_SHIPPING_PROFILE_ID=306841979260`
 - [ ] **Register eBay developer account** — done, awaiting 1 business day approval. Account: cox333, business name: 333 Trading, 790 feedback.
 - [ ] **Build `ebay_client.py`** — eBay Inventory API parallel publisher. Build once API keys arrive.
 - [ ] **Connect Printful to eBay** — Printful natively supports eBay; set up once eBay API credentials confirmed
-- [ ] **First full live run** — `python main.py`, check Printful dashboard + Etsy/eBay listings
+- [ ] **Set `should_auto_renew: false` on all bot-created listings** — Etsy auto-renew costs £0.25/relist. Add to `create_draft_listing` payload in `etsy_client.py`
+- [ ] **Investigate Printful sync product for Etsy-integrated stores** — `/store/products` endpoint only works for Manual Order / API platform stores. NickPrintCo store (18218316) is Etsy-integrated. Find correct endpoint. Blocks v0.3.0.
+- [ ] **Replace Google autocomplete in `etsy_scraper.py` with Etsy API** — now unblocked since Etsy API is approved
+- [ ] **Run `test_pipeline.py` clean end-to-end** — wait for Gemini daily quota reset, run once to confirm AI copy + image both attach correctly
+- [ ] **First full live run** — `python main.py`, check Printful dashboard + Etsy listings
 
 ---
 
@@ -120,6 +124,11 @@ _Last updated: 2026-05-23_
 | 2026-05-23 | eBay added as parallel marketplace channel | Etsy developer app denied first time; eBay has open API access, Printful integration, and existing 790-feedback account (cox333 / 333 Trading) |
 | 2026-05-23 | Cross-platform brand name: 333 Trading | Generic enough to cover POD, tools, and car parts on same eBay account |
 | 2026-05-23 | Etsy app resubmitted referencing API Terms Section 4 | Explicitly permits selling own products — strengthens case vs vague first application |
+| 2026-05-23 | Etsy x-api-key header must be `keystring:sharedsecret` | Etsy API v3 quirk — not documented clearly; discovered by trial and error |
+| 2026-05-23 | `readiness_state_id` is a shop-specific UUID | Not a generic int (1/2/3). Must be queried from an existing listing. NickPrintCo value: 1488409015052 |
+| 2026-05-23 | Printful file upload uses URL not base64 | Base64 of a 1080px PNG causes payload rejection. Pass Pollinations URL directly via `url` field instead |
+| 2026-05-23 | No auto-relist on Etsy | £0.25 per relist. Let non-performers expire. Create new listings instead. `should_auto_renew: false` on all bot listings |
+| 2026-05-23 | Printful `/store/products` does not work for Etsy-integrated stores | Endpoint is "Manual Order / API platform only". NickPrintCo store is Etsy-integrated. Correct approach for v0.3.0 TBD |
 
 ---
 

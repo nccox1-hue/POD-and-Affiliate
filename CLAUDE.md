@@ -82,26 +82,27 @@ Dashboard: http://localhost:8081
 ## Current status (session: 2026-05-23)
 
 ### v0.1.0 COMPLETE ✓
-- Gemini + Pollinations pipeline verified end-to-end
-- All core dependencies installed and stable
+### v0.2.0 COMPLETE ✓ — First Etsy draft listing created via API (listing id: 4510329894)
 
 ### Completed this session
-- **Etsy developer app resubmitted** — first application denied. Shop built out (banner, icon, owner photo, about, policies, 3 active listings with mockups) then resubmitted with stronger description referencing Section 4 of Etsy API Terms (permitted commercial use — selling own products). Awaiting decision.
-- **NickPrintCo shop live** — 3 active listings (Cat Mum, Dog Dad, Hiking Mountains), full profile complete, looks credible
-- **`generate_listings.py` created** — standalone script to generate design images + listing copy without Etsy/Printful API. Useful for manual listing creation while API is blocked.
-- **Gemini free tier daily quota issue identified** — quota exhausts quickly across multiple calls in one session. Falls back to generic copy when exhausted. Resets daily.
-- **eBay added as parallel backup channel** — eBay developer account registered (1 business day approval pending). Existing eBay business account: username `cox333`, business name `333 Trading`, 790 feedback. Will build `ebay_client.py` once API keys arrive.
-- **333 Trading chosen as cross-platform brand name** — generic enough for POD + tools + car parts (existing eBay stock)
+- **Etsy API approved** — `ETSY_API_KEY` + `ETSY_API_SECRET` confirmed live
+- **OAuth flow complete** — `setup_etsy_auth.py` run, `ETSY_ACCESS_TOKEN` + `ETSY_REFRESH_TOKEN` saved to `.env`
+- **Shop credentials fetched** — `ETSY_SHOP_ID=66128682`, `ETSY_SHIPPING_PROFILE_ID=306841979260` (Evri) saved
+- **Etsy API quirks fixed** — `x-api-key` must be `key:secret` combined; `readiness_state_id` is a shop-specific UUID (1488409015052, not a generic int); `taxonomy_id` is `559` for T-shirts
+- **Token refresh race condition fixed** — `upload_listing_image` now uses `self._access_token` (updated on refresh) not `settings.etsy_access_token`
+- **Printful file upload fixed** — switched from base64 to passing Pollinations URL directly via `source_url` param
+- **First draft listing confirmed live** — id `4510329894`, "funny cat mum gift", draft visible in Etsy shop manager
+- **Business rule locked in** — no auto-relist; £0.25 per relist on Etsy. Let listings expire. Create new ones.
 
 ### Current blockers
-- Etsy developer app: resubmitted, awaiting approval
-- eBay developer account: registered, 1 business day approval pending
+- **Printful sync product** — `/store/products` returns "Manual Order / API platform only". NickPrintCo Printful store is Etsy-integrated, not standalone API. Need to find the correct endpoint or workflow for Etsy-integrated stores. This blocks v0.3.0.
+- **Gemini daily quota** — free tier exhausts after a few calls per day. Resets daily. Fallback copy works. Not a code issue.
+- **Image not attached to first test listing** — token refresh happened mid-run on first successful test; fixed in code. Will work on next clean run.
 
-### Outstanding for v0.2.0
-- Wait for Etsy OR eBay developer approval (whichever comes first)
-- If Etsy: run `setup_etsy_auth.py` → `ETSY_ACCESS_TOKEN` + `ETSY_REFRESH_TOKEN`, then `get_shop_info.py`
-- If eBay first: build `ebay_client.py` as parallel publisher alongside `etsy_client.py`
-- Replace Google autocomplete in `etsy_scraper.py` with proper Etsy API calls once Etsy approved
+### Outstanding for v0.3.0
+- Investigate Printful API for Etsy-connected stores — correct endpoint for sync product creation
+- Run `test_pipeline.py` once Gemini quota resets for a fully clean run with AI copy + image attached
+- Set `should_auto_renew: false` on all listings created via API (Etsy auto-renew = £0.25 relist fee)
 
 ---
 
