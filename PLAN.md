@@ -14,14 +14,13 @@
 ---
 
 ## Stage 1 — Accounts & Credentials
-> Status: **IN PROGRESS — current blocker**
+> Status: **COMPLETE ✓**
 
 - [x] **[Nick]** Create Etsy seller account at etsy.com — approved ✓
-- [x] **[Nick]** Register Etsy developer app at etsy.com/developers → get `ETSY_API_KEY` + `ETSY_API_SECRET` (app: nickprintco — Pending Personal Approval)
-- [ ] **[Nick]** Run `setup_etsy_auth.py` → auto-saves `ETSY_ACCESS_TOKEN` + `ETSY_REFRESH_TOKEN`
-- [ ] **[Nick]** Run `get_shop_info.py` → auto-saves `ETSY_SHOP_ID` + `ETSY_SHIPPING_PROFILE_ID`
-- [ ] **[Nick]** Create Printful account at printful.com → connect Etsy store → generate `PRINTFUL_API_KEY`
-- [ ] **[Claude]** Add credentials to `.env` and tick off checklist as each is provided
+- [x] **[Nick]** Register Etsy developer app → `ETSY_API_KEY` + `ETSY_API_SECRET` confirmed working
+- [x] **[Nick]** Run `setup_etsy_auth.py` → `ETSY_ACCESS_TOKEN` + `ETSY_REFRESH_TOKEN` saved
+- [x] **[Nick]** Run `get_shop_info.py` → `ETSY_SHOP_ID=66128682`, `ETSY_SHIPPING_PROFILE_ID=306841979260` saved
+- [x] **[Nick]** Create Printful account → Etsy store connected → `PRINTFUL_API_KEY` + `PRINTFUL_STORE_ID` in `.env`
 
 ---
 
@@ -35,10 +34,25 @@
 ---
 
 ## Stage 3 — v0.3.0: First Printful Sync
-> Status: **Blocked on Stage 2**
+> Status: **Blocked — Printful `/store/products` endpoint only works for Manual Order / API stores. NickPrintCo store is Etsy-integrated. Correct API approach TBD.**
 
+- [ ] **[Claude]** Investigate correct Printful API endpoint for Etsy-integrated stores
 - [ ] **[Nick]** Confirm Printful product created + mockup URLs working
 - [ ] **[Claude]** Tag `v0.3.0`
+
+---
+
+## Stage 3b — eBay Channel (parallel to Stage 3)
+> Status: **In progress — developer account registered 2026-05-23, awaiting approval**
+> Runs in parallel with Stage 3. Does not depend on Printful being resolved.
+> Existing account: username `cox333`, business name `333 Trading`, 790 feedback — strong starting position.
+
+- [ ] **[Nick]** eBay developer account approved → collect App ID, Dev ID, Cert ID, OAuth credentials
+- [ ] **[Nick]** Add eBay credentials to `.env`: `EBAY_APP_ID`, `EBAY_DEV_ID`, `EBAY_CERT_ID`, `EBAY_ACCESS_TOKEN`
+- [ ] **[Claude]** Build `publisher/ebay_client.py` — eBay Inventory API, create draft listing, upload image
+- [ ] **[Claude]** Wire eBay into `publisher/publisher.py` alongside `etsy_client.py` — both publish from same pipeline run
+- [ ] **[Nick]** Connect Printful to eBay account (Printful dashboard → Stores → Add store → eBay)
+- [ ] **[Nick]** Confirm first eBay draft listing appears in Seller Hub
 
 ---
 
