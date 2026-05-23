@@ -65,10 +65,9 @@ $env:PATH = "C:\Users\nickc\AppData\Local\Python\python-3.13-64;" + $env:PATH
 ```
 After a full terminal restart this should be automatic.
 
-### Two Python versions — critical pip rule
-Python 3.14 is also installed at `C:\Python314\` and its `pip.exe` is on PATH.
-Bare `pip install` silently installs into 3.14 — packages will be missing at runtime.
-**Always use `python -m pip install` to install into 3.13.**
+### pip rule
+Python 3.14 was uninstalled (was silently intercepting pip installs).
+**Always use `python -m pip install` to install into 3.13 — do not rely on bare `pip`.**
 
 ### Running the bot
 ```powershell
@@ -80,28 +79,29 @@ Dashboard: http://localhost:8081
 
 ---
 
-## Current status (session: 2026-05-22 #2)
+## Current status (session: 2026-05-23)
 
 ### v0.1.0 COMPLETE ✓
 - Gemini + Pollinations pipeline verified end-to-end
 - All core dependencies installed and stable
 
 ### Completed this session
-- **Printful account** created — Etsy store (NickPrintCo) connected, API key + store ID (`18218316`) in `.env`, verified working via API call
-- **Scrapers fixed** — Etsy autocomplete (DataDome-blocked) and Pinterest trends (dead endpoint) both replaced with Google autocomplete. Google Trends confirmed working. Scrapers are interim only — Etsy scraper will be replaced with official Etsy API calls once app is approved
-- **Python 3.14 uninstalled** — was silently intercepting `pip install`. Python 3.13 Scripts now on PATH; `pip` correctly resolves to 3.13
-- **`playwright` removed** from requirements.txt — replaced with `curl_cffi` (installed and verified importable)
-- **Credentials policy** documented in CLAUDE.md — `.env` is the single store for all credentials including usernames/passwords
-- **HMRC sole trader trigger** set to £800 cumulative Etsy turnover (£1,000 allowance cliff)
+- **Etsy developer app resubmitted** — first application denied. Shop built out (banner, icon, owner photo, about, policies, 3 active listings with mockups) then resubmitted with stronger description referencing Section 4 of Etsy API Terms (permitted commercial use — selling own products). Awaiting decision.
+- **NickPrintCo shop live** — 3 active listings (Cat Mum, Dog Dad, Hiking Mountains), full profile complete, looks credible
+- **`generate_listings.py` created** — standalone script to generate design images + listing copy without Etsy/Printful API. Useful for manual listing creation while API is blocked.
+- **Gemini free tier daily quota issue identified** — quota exhausts quickly across multiple calls in one session. Falls back to generic copy when exhausted. Resets daily.
+- **eBay added as parallel backup channel** — eBay developer account registered (1 business day approval pending). Existing eBay business account: username `cox333`, business name `333 Trading`, 790 feedback. Will build `ebay_client.py` once API keys arrive.
+- **333 Trading chosen as cross-platform brand name** — generic enough for POD + tools + car parts (existing eBay stock)
 
-### Current blocker
-Etsy developer app still pending personal approval. OAuth flow (`setup_etsy_auth.py`) cannot run until approved.
+### Current blockers
+- Etsy developer app: resubmitted, awaiting approval
+- eBay developer account: registered, 1 business day approval pending
 
 ### Outstanding for v0.2.0
-- Wait for Etsy developer app approval
-- Run `setup_etsy_auth.py` → `ETSY_ACCESS_TOKEN` + `ETSY_REFRESH_TOKEN`
-- Run `get_shop_info.py` → `ETSY_SHOP_ID` + `ETSY_SHIPPING_PROFILE_ID`
-- Replace Google autocomplete in `etsy_scraper.py` with proper Etsy API calls
+- Wait for Etsy OR eBay developer approval (whichever comes first)
+- If Etsy: run `setup_etsy_auth.py` → `ETSY_ACCESS_TOKEN` + `ETSY_REFRESH_TOKEN`, then `get_shop_info.py`
+- If eBay first: build `ebay_client.py` as parallel publisher alongside `etsy_client.py`
+- Replace Google autocomplete in `etsy_scraper.py` with proper Etsy API calls once Etsy approved
 
 ---
 

@@ -1,18 +1,21 @@
 # POD-and-Affiliate — Backlog
 
-_Last updated: 2026-05-22_
+_Last updated: 2026-05-23_
 
 ---
 
 ## Immediate — must complete before first live run
 
-- [ ] **Verify Gemini end-to-end** — start server, confirm logs show Gemini returning listing content (not fallback), check `data/designs/` for generated PNGs
-- [ ] **Create Etsy seller account** — etsy.com → sell on Etsy
-- [ ] **Register Etsy developer app** — etsy.com/developers → get `ETSY_API_KEY` + `ETSY_API_SECRET`
-- [ ] **Run `setup_etsy_auth.py`** — completes OAuth, writes `ETSY_ACCESS_TOKEN` to `.env`
+- [x] **Verify Gemini end-to-end** — confirmed working (hits free tier daily quota limit quickly; falls back to generic copy when exhausted)
+- [x] **Create Etsy seller account** — done, NickPrintCo live with 3 active listings and full shop profile
+- [x] **Register Etsy developer app** — first attempt denied, resubmitted 2026-05-23 with stronger description. Awaiting approval.
+- [ ] **Run `setup_etsy_auth.py`** — blocked on Etsy app approval
 - [x] **Create Printful account** — done, Etsy store connected, `PRINTFUL_API_KEY` + `PRINTFUL_STORE_ID` in `.env`, verified via API
 - [ ] **Fill `.env`** — remaining empty values: `ETSY_ACCESS_TOKEN`, `ETSY_REFRESH_TOKEN`, `ETSY_SHOP_ID`, `ETSY_SHIPPING_PROFILE_ID` (blocked on Etsy app approval)
-- [ ] **First full live run** — `python main.py`, check Printful dashboard + Etsy drafts
+- [ ] **Register eBay developer account** — done, awaiting 1 business day approval. Account: cox333, business name: 333 Trading, 790 feedback.
+- [ ] **Build `ebay_client.py`** — eBay Inventory API parallel publisher. Build once API keys arrive.
+- [ ] **Connect Printful to eBay** — Printful natively supports eBay; set up once eBay API credentials confirmed
+- [ ] **First full live run** — `python main.py`, check Printful dashboard + Etsy/eBay listings
 
 ---
 
@@ -114,6 +117,9 @@ _Last updated: 2026-05-22_
 | 2026-05-22 | playwright removed → curl_cffi | playwright unused and heavyweight; curl_cffi needed for Cloudflare bypass attempts |
 | 2026-05-22 | HMRC sole trader registration trigger: £800 cumulative Etsy turnover | £1,000 trading allowance is a cliff — register before crossing it |
 | 2026-05-22 | Python 3.14 uninstalled | Was silently intercepting pip installs, causing wrong-version package installs |
+| 2026-05-23 | eBay added as parallel marketplace channel | Etsy developer app denied first time; eBay has open API access, Printful integration, and existing 790-feedback account (cox333 / 333 Trading) |
+| 2026-05-23 | Cross-platform brand name: 333 Trading | Generic enough to cover POD, tools, and car parts on same eBay account |
+| 2026-05-23 | Etsy app resubmitted referencing API Terms Section 4 | Explicitly permits selling own products — strengthens case vs vague first application |
 
 ---
 
