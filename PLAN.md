@@ -26,10 +26,10 @@
 ---
 
 ## Stage 2 — v0.2.0: First Draft Listing
-> Status: **Blocked on Stage 1**
+> Status: **COMPLETE ✓**
 
-- [ ] **[Claude]** Run pipeline with a hardcoded keyword (bypass scraper)
-- [ ] **[Nick]** Confirm draft listing appears in Etsy shop
+- [x] **[Claude]** Run pipeline with a hardcoded keyword (bypass scraper)
+- [x] **[Nick]** Confirm draft listing appears in Etsy shop — listing id 4510329894 confirmed
 - [ ] **[Claude]** Tag `v0.2.0`
 
 ---
@@ -69,6 +69,12 @@
 - [x] **[Nick]** Bitwarden account
 - [x] **[Nick]** Monzo Business Pro account — approved, funded with £10
 - [ ] **[Nick]** Register as sole trader with HMRC for Self Assessment — trigger: cumulative Etsy turnover reaches £800 (£1,000 allowance cliff, register before crossing it)
+
+---
+
+## Business rules (operational constraints)
+
+- **Relisting cost**: £0.25 per relist on Etsy. **Never auto-relist non-performing listings.** Let them expire. Create a fresh listing instead. The scheduler and any auto-renew logic must respect this.
 
 ---
 

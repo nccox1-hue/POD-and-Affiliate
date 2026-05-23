@@ -12,9 +12,10 @@ from dotenv import load_dotenv, set_key
 load_dotenv()
 
 API_KEY = os.getenv("ETSY_API_KEY", "")
+API_SECRET = os.getenv("ETSY_API_SECRET", "")
 ACCESS_TOKEN = os.getenv("ETSY_ACCESS_TOKEN", "")
 HEADERS = {
-    "x-api-key": API_KEY,
+    "x-api-key": f"{API_KEY}:{API_SECRET}",
     "Authorization": f"Bearer {ACCESS_TOKEN}",
 }
 BASE = "https://openapi.etsy.com/v3"
@@ -43,7 +44,7 @@ def main():
     shop_name = shop["shop_name"]
     print(f"Shop: {shop_name}  (ID: {shop_id})")
     set_key(".env", "ETSY_SHOP_ID", shop_id)
-    print(f"✓ ETSY_SHOP_ID={shop_id} saved to .env")
+    print(f"ETSY_SHOP_ID={shop_id} saved to .env")
 
     # 3. Get shipping profiles
     r = httpx.get(f"{BASE}/application/shops/{shop_id}/shipping-profiles", headers=HEADERS)
@@ -66,7 +67,7 @@ def main():
     if len(profiles) == 1:
         profile_id = str(profiles[0]["shipping_profile_id"])
         set_key(".env", "ETSY_SHIPPING_PROFILE_ID", profile_id)
-        print(f"\n✓ ETSY_SHIPPING_PROFILE_ID={profile_id} saved to .env (only one profile found)")
+        print(f"\nETSY_SHIPPING_PROFILE_ID={profile_id} saved to .env (only one profile found)")
     else:
         print("\nMultiple profiles found — add the correct ID to .env manually:")
         print("  ETSY_SHIPPING_PROFILE_ID=<id from above>")

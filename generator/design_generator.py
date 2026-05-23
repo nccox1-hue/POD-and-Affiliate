@@ -115,6 +115,16 @@ async def _generate_stability(prompt: str, output_path: str) -> Optional[str]:
         return None
 
 
+def build_pollinations_url(prompt: str) -> str:
+    """Return the Pollinations URL for a given prompt (same URL used during generation)."""
+    enhanced = (
+        f"{prompt}, t-shirt design, vector art style, clean white background, "
+        "bold graphic, print ready, no text unless specified, high contrast"
+    )
+    encoded = urllib.parse.quote(enhanced)
+    return f"{POLLINATIONS_URL.format(prompt=encoded)}?width=1080&height=1080&seed=42"
+
+
 async def build_design_prompt(keyword: str, theme: str) -> str:
     """Use Gemini Flash to write a strong image generation prompt for the keyword."""
     if not settings.gemini_api_key:

@@ -47,26 +47,25 @@ class PrintfulClient:
         self.headers = {
             "Authorization": f"Bearer {settings.printful_api_key}",
             "Content-Type": "application/json",
+            "X-PF-Store-Id": settings.printful_store_id,
         }
 
-    async def upload_design_file(self, image_path: str, filename: str) -> Optional[str]:
-        """Upload a design image to Printful file library. Returns file URL."""
-        if not Path(image_path).exists():
-            logger.error("Design file not found: %s", image_path)
-            return None
-
+    async def upload_design_file(self, image_path: str, filename: str, source_url: Optional[str] = None) -> Optional[str]:
+        """Upload a design image to Printful file library. Returns file URL.
+        Prefers source_url (direct URL) over base64 to avoid large payloads."""
         try:
-            # Read and base64-encode the image
-            import base64
-            with open(image_path, "rb") as f:
-                image_data = base64.b64encode(f.read()).decode()
-
             async with aiohttp.ClientSession(headers=self.headers) as session:
-                payload = {
-                    "type": "default",
-                    "filename": filename,
-                    "contents": image_data,
-                }
+                if source_url:
+                    payload = {"type": "default", "filename": filename, "url": source_url}
+                else:
+                    if not Path(image_path).exists():
+                        logger.error("Design file not found: %s", image_path)
+                        return None
+                    import base64
+                    with open(image_path, "rb") as f:
+                        image_data = base64.b64encode(f.read()).decode()
+                    payload = {"type": "default", "filename": filename, "contents": image_data}
+
                 async with session.post(f"{PRINTFUL_API}/files", json=payload) as resp:
                     data = await resp.json()
                     if data.get("code") == 200:

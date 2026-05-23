@@ -22,7 +22,7 @@ class EtsyClient:
     def __init__(self):
         self._access_token = settings.etsy_access_token
         self.headers = {
-            "x-api-key": settings.etsy_api_key,
+            "x-api-key": f"{settings.etsy_api_key}:{settings.etsy_api_secret}",
             "Authorization": f"Bearer {self._access_token}",
             "Content-Type": "application/json",
         }
@@ -80,11 +80,12 @@ class EtsyClient:
             "price": price_gbp,
             "who_made": "i_did",
             "when_made": "made_to_order",
-            "taxonomy_id": 68887441,    # Clothing > Tops & Tees > T-Shirts
+            "taxonomy_id": 559,          # T-Shirts (verified from existing shop listing)
             "shipping_profile_id": int(settings.etsy_shipping_profile_id) if settings.etsy_shipping_profile_id else None,
             "tags": clean_tags,
             "materials": materials[:13],
             "is_digital": False,
+            "readiness_state_id": 1488409015052,  # Shop-specific value (queried from existing listing)
             "state": "draft",           # Draft first — review before publishing
         }
         # Remove None values
@@ -133,8 +134,8 @@ class EtsyClient:
             form.add_field("rank", str(rank))
 
             upload_headers = {
-                "x-api-key": settings.etsy_api_key,
-                "Authorization": f"Bearer {settings.etsy_access_token}",
+                "x-api-key": f"{settings.etsy_api_key}:{settings.etsy_api_secret}",
+                "Authorization": f"Bearer {self._access_token}",
             }
 
             async with aiohttp.ClientSession(headers=upload_headers) as session:

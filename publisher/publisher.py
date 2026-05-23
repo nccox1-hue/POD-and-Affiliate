@@ -10,7 +10,7 @@ from typing import Dict, Any, Optional
 
 from config.settings import settings
 from config.themes import THEME_CATALOGUE
-from generator.design_generator import generate_design, build_design_prompt
+from generator.design_generator import generate_design, build_design_prompt, build_pollinations_url
 from generator.listing_generator import generate_listing
 from publisher.printful_client import PrintfulClient, PRODUCT_VARIANTS
 from publisher.etsy_client import EtsyClient
@@ -48,8 +48,9 @@ class Publisher:
             logger.error("Design generation failed for '%s'", keyword)
             return False
 
-        # 3. Upload design to Printful
-        design_url = await self.printful.upload_design_file(image_path, f"{filename}.png")
+        # 3. Upload design to Printful (use Pollinations URL directly — avoids large base64 payload)
+        pollinations_url = build_pollinations_url(design_prompt)
+        design_url = await self.printful.upload_design_file(image_path, f"{filename}.png", source_url=pollinations_url)
 
         # 4. Generate listing copy (title, description, tags)
         # Brief pause to avoid Gemini free-tier rate limit (design prompt + listing = 2 calls/listing)
