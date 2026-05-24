@@ -79,30 +79,31 @@ Dashboard: http://localhost:8081
 
 ---
 
-## Current status (session: 2026-05-23)
+## Current status (session: 2026-05-24)
 
 ### v0.1.0 COMPLETE ✓
 ### v0.2.0 COMPLETE ✓ — First Etsy draft listing created via API (listing id: 4510329894)
+### v0.3.0 COMPLETE ✓ — Printful product creation working, full pipeline confirmed end-to-end
 
 ### Completed this session
-- **Etsy API approved** — `ETSY_API_KEY` + `ETSY_API_SECRET` confirmed live
-- **OAuth flow complete** — `setup_etsy_auth.py` run, `ETSY_ACCESS_TOKEN` + `ETSY_REFRESH_TOKEN` saved to `.env`
-- **Shop credentials fetched** — `ETSY_SHOP_ID=66128682`, `ETSY_SHIPPING_PROFILE_ID=306841979260` (Evri) saved
-- **Etsy API quirks fixed** — `x-api-key` must be `key:secret` combined; `readiness_state_id` is a shop-specific UUID (1488409015052, not a generic int); `taxonomy_id` is `559` for T-shirts
-- **Token refresh race condition fixed** — `upload_listing_image` now uses `self._access_token` (updated on refresh) not `settings.etsy_access_token`
-- **Printful file upload fixed** — switched from base64 to passing Pollinations URL directly via `source_url` param
-- **First draft listing confirmed live** — id `4510329894`, "funny cat mum gift", draft visible in Etsy shop manager
-- **Business rule locked in** — no auto-relist; £0.25 per relist on Etsy. Let listings expire. Create new ones.
+- **eBay channel live** — `publisher/ebay_client.py` built (Trading API, XML, Auth'n'Auth token, UK site ID 3). First live listing: ItemID 278017629043. Pipeline now publishes to both Etsy and eBay in one run.
+- **Printful blocker resolved** — created a second Printful store "NickPrintCo API" (Manual/API type, ID 18226038). Product creation (`/store/products`) now works via this store. File uploads still use the Etsy-integrated store (ID 18218316).
+- **Dual Printful store wiring** — `config/settings.py` has `printful_api_store_key` + `printful_api_store_id`. `printful_client.py` uses API store headers for `create_sync_product` and `get_mockup_url`; Etsy store headers for `upload_design_file`.
+- **Negative text prompt strengthened** — Pollinations prompt now has six explicit no-text instructions + `&nologo=true` to reduce garbled text in generated images.
+- **eBay XML escaping fixed** — Pollinations URLs contain `&` chars which broke raw XML. Fixed with `xml.sax.saxutils.escape`.
+- **Full pipeline test passed** — `test_pipeline.py` ran end-to-end: design generated, Printful product created (id 434781336), Etsy draft listing created (id 4510564932), eBay live listing created (ItemID 278017749827). Gemini still quota-exhausted so fallback copy used — full AI copy will run when quota resets.
+- **AFFILIATE_PLAN.md created** — full affiliate site plan: niche = Automation/AI/Productivity, platform = Jekyll on GitHub Pages (`affiliate` branch), programmes = Amazon Associates → ClickUp → Make → Jasper → HubSpot.
+- **v0.3.0 tagged**
 
 ### Current blockers
-- **Printful sync product** — `/store/products` returns "Manual Order / API platform only". NickPrintCo Printful store is Etsy-integrated, not standalone API. Need to find the correct endpoint or workflow for Etsy-integrated stores. This blocks v0.3.0.
-- **Gemini daily quota** — free tier exhausts after a few calls per day. Resets daily. Fallback copy works. Not a code issue.
-- **Image not attached to first test listing** — token refresh happened mid-run on first successful test; fixed in code. Will work on next clean run.
+- **Gemini daily quota** — exhausts quickly on free tier. Resets daily. Fallback copy works. Not a code issue.
 
-### Outstanding for v0.3.0
-- Investigate Printful API for Etsy-connected stores — correct endpoint for sync product creation
-- Run `test_pipeline.py` once Gemini quota resets for a fully clean run with AI copy + image attached
-- Set `should_auto_renew: false` on all listings created via API (Etsy auto-renew = £0.25 relist fee)
+### Notes on test listings
+- Test Etsy draft `4510564932` and Printful product `434781336` created during this session's pipeline test — delete from dashboards manually.
+
+### Outstanding actions for Nick
+- Connect Printful to eBay account (Printful dashboard → Stores → Add store → eBay)
+- Sign up for affiliate programmes: Amazon Associates, ClickUp, Make
 
 ---
 
