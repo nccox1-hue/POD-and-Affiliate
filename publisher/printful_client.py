@@ -44,10 +44,17 @@ PRODUCT_VARIANTS = {
 
 class PrintfulClient:
     def __init__(self):
+        # Etsy-connected store — file uploads only
         self.headers = {
             "Authorization": f"Bearer {settings.printful_api_key}",
             "Content-Type": "application/json",
             "X-PF-Store-Id": settings.printful_store_id,
+        }
+        # Manual/API store — product creation and mockups
+        self._api_store_headers = {
+            "Authorization": f"Bearer {settings.printful_api_store_key}",
+            "Content-Type": "application/json",
+            "X-PF-Store-Id": settings.printful_api_store_id,
         }
 
     async def upload_design_file(self, image_path: str, filename: str, source_url: Optional[str] = None) -> Optional[str]:
@@ -113,11 +120,11 @@ class PrintfulClient:
         }
 
         try:
-            async with aiohttp.ClientSession(headers=self.headers) as session:
+            async with aiohttp.ClientSession(headers=self._api_store_headers) as session:
                 async with session.post(f"{PRINTFUL_API}/store/products", json=payload) as resp:
                     data = await resp.json()
                     if data.get("code") == 200:
-                        logger.info("Printful: product created -> id=%s", data["result"]["id"])
+                        logger.info("Printful: sync product created -> id=%s", data["result"]["id"])
                         return data["result"]
                     logger.error("Printful product creation error: %s", data)
                     return None
@@ -128,7 +135,7 @@ class PrintfulClient:
     async def get_mockup_url(self, product_id: int, variant_ids: List[int], design_url: str) -> Optional[str]:
         """Generate a product mockup image URL."""
         try:
-            async with aiohttp.ClientSession(headers=self.headers) as session:
+            async with aiohttp.ClientSession(headers=self._api_store_headers) as session:
                 payload = {
                     "variant_ids": variant_ids[:1],
                     "files": [{"placement": "front", "image_url": design_url, "position": {"area_width": 1800, "area_height": 2100, "width": 1800, "height": 2100, "top": 0, "left": 0}}],

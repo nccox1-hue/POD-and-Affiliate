@@ -20,6 +20,7 @@ class DesignJob(Base):
     retail_price = Column(Float)
     printful_product_id = Column(String(100))
     etsy_listing_id = Column(String(100))
+    ebay_item_id = Column(String(100))
     mockup_url = Column(String(500))
     status = Column(String(50), default="pending")  # pending, draft, active, failed
     created_at = Column(DateTime, default=datetime.utcnow)

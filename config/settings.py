@@ -13,7 +13,17 @@ class Settings(BaseSettings):
 
     printful_api_key: str = ""
     printful_store_id: str = ""
+    printful_api_store_key: str = ""
+    printful_api_store_id: str = ""
     stability_api_key: str = ""
+
+    ebay_app_id: str = ""
+    ebay_dev_id: str = ""
+    ebay_cert_id: str = ""
+    ebay_access_token: str = ""
+    ebay_refresh_token: str = ""
+    ebay_runame: str = "Nick_Cox-NickCox-NickPri-bzvqjfl"
+    ebay_postal_code: str = ""
 
     log_level: str = "INFO"
     database_url: str = "sqlite+aiosqlite:///./data/pod_bot.db"

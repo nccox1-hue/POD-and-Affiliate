@@ -50,11 +50,12 @@ async def _generate_pollinations(prompt: str, output_path: str) -> Optional[str]
     """Pollinations.ai — free, no API key required."""
     enhanced = (
         f"{prompt}, t-shirt design, vector art style, clean white background, "
-        "bold graphic, print ready, no text unless specified, high contrast"
+        "bold graphic, print ready, high contrast, "
+        "no text, no words, no letters, no writing, no typography, text-free"
     )
     encoded = urllib.parse.quote(enhanced)
     url = POLLINATIONS_URL.format(prompt=encoded)
-    url += "?width=1080&height=1080&seed=42"
+    url += "?width=1080&height=1080&seed=42&nologo=true"
 
     for attempt in range(3):
         try:
@@ -119,10 +120,11 @@ def build_pollinations_url(prompt: str) -> str:
     """Return the Pollinations URL for a given prompt (same URL used during generation)."""
     enhanced = (
         f"{prompt}, t-shirt design, vector art style, clean white background, "
-        "bold graphic, print ready, no text unless specified, high contrast"
+        "bold graphic, print ready, high contrast, "
+        "no text, no words, no letters, no writing, no typography, text-free"
     )
     encoded = urllib.parse.quote(enhanced)
-    return f"{POLLINATIONS_URL.format(prompt=encoded)}?width=1080&height=1080&seed=42"
+    return f"{POLLINATIONS_URL.format(prompt=encoded)}?width=1080&height=1080&seed=42&nologo=true"
 
 
 async def build_design_prompt(keyword: str, theme: str) -> str:

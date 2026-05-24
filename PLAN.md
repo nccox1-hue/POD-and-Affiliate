@@ -2,6 +2,7 @@
 
 > **This is the single source of truth for what to work on next.**
 > Open this first at the start of every session. Work top-to-bottom. Do not skip ahead.
+> **Two concurrent workstreams:** POD pipeline (stages below) + Affiliate site (see [AFFILIATE_PLAN.md](AFFILIATE_PLAN.md)).
 
 ---
 
@@ -34,25 +35,26 @@
 ---
 
 ## Stage 3 — v0.3.0: First Printful Sync
-> Status: **Blocked — Printful `/store/products` endpoint only works for Manual Order / API stores. NickPrintCo store is Etsy-integrated. Correct API approach TBD.**
+> Status: **COMPLETE ✓ — Printful product created (id 434781336) via NickPrintCo API store. Tagged v0.3.0.**
+> Solution: created a second Printful store (Manual/API type, id 18226038) alongside the Etsy-connected store. File uploads use Etsy store; product creation uses API store.
 
-- [ ] **[Claude]** Investigate correct Printful API endpoint for Etsy-integrated stores
-- [ ] **[Nick]** Confirm Printful product created + mockup URLs working
-- [ ] **[Claude]** Tag `v0.3.0`
+- [x] **[Claude]** Investigate correct Printful API endpoint for Etsy-integrated stores
+- [x] **[Nick]** Confirm Printful product created + mockup URLs working
+- [x] **[Claude]** Tag `v0.3.0`
 
 ---
 
 ## Stage 3b — eBay Channel (parallel to Stage 3)
-> Status: **In progress — developer account registered 2026-05-23, awaiting approval**
-> Runs in parallel with Stage 3. Does not depend on Printful being resolved.
+> Status: **COMPLETE ✓ — First live eBay listing created 2026-05-24, ItemID 278017629043**
+> Uses Trading API (Auth'n'Auth token) — listings go live immediately, no draft state.
 > Existing account: username `cox333`, business name `333 Trading`, 790 feedback — strong starting position.
 
-- [ ] **[Nick]** eBay developer account approved → collect App ID, Dev ID, Cert ID, OAuth credentials
-- [ ] **[Nick]** Add eBay credentials to `.env`: `EBAY_APP_ID`, `EBAY_DEV_ID`, `EBAY_CERT_ID`, `EBAY_ACCESS_TOKEN`
-- [ ] **[Claude]** Build `publisher/ebay_client.py` — eBay Inventory API, create draft listing, upload image
-- [ ] **[Claude]** Wire eBay into `publisher/publisher.py` alongside `etsy_client.py` — both publish from same pipeline run
+- [x] **[Nick]** eBay developer account approved → App ID, Dev ID, Cert ID collected
+- [x] **[Nick]** Add eBay credentials to `.env`
+- [x] **[Claude]** Build `publisher/ebay_client.py` — Trading API, creates live FixedPrice listing
+- [x] **[Claude]** Wire eBay into `publisher/publisher.py` — both Etsy and eBay publish from same pipeline run
 - [ ] **[Nick]** Connect Printful to eBay account (Printful dashboard → Stores → Add store → eBay)
-- [ ] **[Nick]** Confirm first eBay draft listing appears in Seller Hub
+- [x] **[Nick]** First eBay listing confirmed live in Seller Hub — ItemID 278017629043
 
 ---
 
@@ -89,6 +91,19 @@
 ## Business rules (operational constraints)
 
 - **Relisting cost**: £0.25 per relist on Etsy. **Never auto-relist non-performing listings.** Let them expire. Create a fresh listing instead. The scheduler and any auto-renew logic must respect this.
+
+---
+
+## Affiliate Workstream
+> Status: **Active — concurrent with POD stages. Full plan in [AFFILIATE_PLAN.md](AFFILIATE_PLAN.md).**
+> Niche: Productivity & automation tools. Platform: GitHub Pages (`affiliate` branch). Content: AI-drafted, Nick reviews.
+
+- [ ] **[Nick]** Sign up for Amazon Associates
+- [ ] **[Nick]** Sign up for ClickUp affiliate programme
+- [ ] **[Nick]** Sign up for Make (Integromat) affiliate programme
+- [ ] **[Claude]** Scaffold Jekyll site on `affiliate` branch — homepage, about, article template, disclosure
+- [ ] **[Nick]** Connect Google Search Console to github.io URL
+- [ ] **[Claude]** Draft first 3 articles — one roundup, one comparison, one how-to
 
 ---
 

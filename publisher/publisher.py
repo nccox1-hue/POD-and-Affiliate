@@ -14,6 +14,7 @@ from generator.design_generator import generate_design, build_design_prompt, bui
 from generator.listing_generator import generate_listing
 from publisher.printful_client import PrintfulClient, PRODUCT_VARIANTS
 from publisher.etsy_client import EtsyClient
+from publisher.ebay_client import EbayClient
 from database.db import AsyncSessionLocal
 from database.models import DesignJob
 
@@ -24,6 +25,7 @@ class Publisher:
     def __init__(self):
         self.printful = PrintfulClient()
         self.etsy = EtsyClient()
+        self.ebay = EbayClient()
 
     async def run(self, opportunity: Dict[str, Any]) -> bool:
         """
@@ -102,7 +104,17 @@ class Publisher:
                 # Auto-publish (set state=draft above to review first — change to active to auto-publish)
                 # await self.etsy.publish_listing(listing_id)
 
-        # 9. Save to database
+        # 9. Create eBay listing (uses same image URL from Pollinations)
+        ebay_item_id = None
+        if settings.ebay_access_token:
+            ebay_item_id = await self.ebay.create_listing(
+                title=listing["title"],
+                description=listing["description"],
+                price_gbp=retail_price,
+                image_url=pollinations_url,
+            )
+
+        # 10. Save to database
         async with AsyncSessionLocal() as db:
             job = DesignJob(
                 keyword=keyword,
@@ -116,6 +128,7 @@ class Publisher:
                 retail_price=retail_price,
                 printful_product_id=str(printful_product["id"]) if printful_product else "",
                 etsy_listing_id=str(etsy_listing["listing_id"]) if etsy_listing else "",
+                ebay_item_id=str(ebay_item_id) if ebay_item_id else "",
                 mockup_url=mockup_url or "",
                 status="draft" if etsy_listing else "design_only",
             )
@@ -123,8 +136,9 @@ class Publisher:
             await db.commit()
 
         logger.info(
-            "Publisher: pipeline complete for '%s' — Etsy listing %s",
+            "Publisher: pipeline complete for '%s' — Etsy %s | eBay %s",
             keyword,
             etsy_listing.get("listing_id") if etsy_listing else "N/A",
+            ebay_item_id or "N/A",
         )
         return True
