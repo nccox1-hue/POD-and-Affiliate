@@ -8,6 +8,7 @@ Pollinations generates clean, print-ready designs from text prompts.
 """
 import asyncio
 import logging
+import random
 import httpx
 import urllib.parse
 from pathlib import Path
@@ -46,16 +47,22 @@ async def generate_design(
     return await _generate_pollinations(prompt, output_path)
 
 
+_NEGATIVE = urllib.parse.quote(
+    "text, words, letters, numbers, alphabet, typography, watermark, signature, "
+    "logo, caption, label, title, writing, font, banner"
+)
+
+
 async def _generate_pollinations(prompt: str, output_path: str) -> Optional[str]:
     """Pollinations.ai — free, no API key required."""
     enhanced = (
-        f"{prompt}, t-shirt design, vector art style, clean white background, "
-        "bold graphic, print ready, high contrast, "
-        "no text, no words, no letters, no writing, no typography, text-free"
+        f"{prompt}, t-shirt graphic design, vector illustration, clean white background, "
+        "bold graphic, print ready, high contrast, purely graphical, no text elements"
     )
     encoded = urllib.parse.quote(enhanced)
+    seed = random.randint(1, 999999)
     url = POLLINATIONS_URL.format(prompt=encoded)
-    url += "?width=1080&height=1080&seed=42&nologo=true"
+    url += f"?width=1080&height=1080&seed={seed}&nologo=true&model=flux&negative={_NEGATIVE}"
 
     for attempt in range(3):
         try:
@@ -116,15 +123,22 @@ async def _generate_stability(prompt: str, output_path: str) -> Optional[str]:
         return None
 
 
-def build_pollinations_url(prompt: str) -> str:
-    """Return the Pollinations URL for a given prompt (same URL used during generation)."""
+def build_pollinations_url(prompt: str, seed: Optional[int] = None, short: bool = False) -> str:
+    """Return the Pollinations URL for a given prompt.
+    short=True returns a URL safe for platforms with a 500-char URL limit (e.g. eBay).
+    """
+    if short:
+        encoded = urllib.parse.quote(f"{prompt}, t-shirt graphic design, vector art")
+        s = seed if seed is not None else random.randint(1, 999999)
+        return f"{POLLINATIONS_URL.format(prompt=encoded)}?width=1080&height=1080&seed={s}&nologo=true&model=flux"
+
     enhanced = (
-        f"{prompt}, t-shirt design, vector art style, clean white background, "
-        "bold graphic, print ready, high contrast, "
-        "no text, no words, no letters, no writing, no typography, text-free"
+        f"{prompt}, t-shirt graphic design, vector illustration, clean white background, "
+        "bold graphic, print ready, high contrast, purely graphical, no text elements"
     )
     encoded = urllib.parse.quote(enhanced)
-    return f"{POLLINATIONS_URL.format(prompt=encoded)}?width=1080&height=1080&seed=42&nologo=true"
+    s = seed if seed is not None else random.randint(1, 999999)
+    return f"{POLLINATIONS_URL.format(prompt=encoded)}?width=1080&height=1080&seed={s}&nologo=true&model=flux&negative={_NEGATIVE}"
 
 
 async def build_design_prompt(keyword: str, theme: str) -> str:
@@ -141,7 +155,9 @@ async def build_design_prompt(keyword: str, theme: str) -> str:
             contents=(
                 f"Write a concise image generation prompt (max 30 words) for a "
                 f"print-on-demand t-shirt design. Theme: {theme}. Keyword: {keyword}. "
-                f"Focus on visual style only (no text). Output the prompt only, no explanation."
+                f"Describe only visual graphic elements — shapes, animals, objects, colours, illustration style. "
+                f"Absolutely no text, words, letters, or typography of any kind. "
+                f"Output the prompt only, no explanation."
             ),
         )
         return response.text.strip()

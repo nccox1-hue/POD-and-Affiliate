@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     printful_store_id: str = ""
     printful_api_store_key: str = ""
     printful_api_store_id: str = ""
+    printful_ebay_store_id: str = ""
     stability_api_key: str = ""
 
     ebay_app_id: str = ""

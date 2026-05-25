@@ -132,6 +132,38 @@ class PrintfulClient:
             logger.error("Printful create product error: %s", e)
             return None
 
+    async def create_order(
+        self,
+        recipient: Dict[str, Any],
+        variant_id: int,
+        quantity: int,
+        design_url: str,
+        retail_price: str,
+    ) -> Optional[str]:
+        """Submit a fulfilment order to Printful. Returns Printful order ID on success."""
+        payload = {
+            "recipient": recipient,
+            "items": [{
+                "variant_id": variant_id,
+                "quantity": quantity,
+                "retail_price": retail_price,
+                "files": [{"url": design_url}],
+            }],
+        }
+        try:
+            async with aiohttp.ClientSession(headers=self._api_store_headers) as session:
+                async with session.post(f"{PRINTFUL_API}/orders", json=payload) as resp:
+                    data = await resp.json()
+                    if data.get("code") == 200:
+                        order_id = str(data["result"]["id"])
+                        logger.info("Printful order created -> id=%s", order_id)
+                        return order_id
+                    logger.error("Printful order error: %s", data)
+                    return None
+        except Exception as e:
+            logger.error("Printful create_order error: %s", e)
+            return None
+
     async def get_mockup_url(self, product_id: int, variant_ids: List[int], design_url: str) -> Optional[str]:
         """Generate a product mockup image URL."""
         try:

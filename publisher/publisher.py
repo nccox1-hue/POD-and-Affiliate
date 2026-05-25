@@ -104,14 +104,15 @@ class Publisher:
                 # Auto-publish (set state=draft above to review first — change to active to auto-publish)
                 # await self.etsy.publish_listing(listing_id)
 
-        # 9. Create eBay listing (uses same image URL from Pollinations)
+        # 9. Create eBay listing — short URL required (eBay 500-char PictureURL limit)
         ebay_item_id = None
         if settings.ebay_access_token:
+            ebay_image_url = build_pollinations_url(design_prompt, short=True)
             ebay_item_id = await self.ebay.create_listing(
                 title=listing["title"],
                 description=listing["description"],
                 price_gbp=retail_price,
-                image_url=pollinations_url,
+                image_url=ebay_image_url,
             )
 
         # 10. Save to database
@@ -126,6 +127,7 @@ class Publisher:
                 listing_description=listing["description"],
                 tags=listing["tags"],
                 retail_price=retail_price,
+                product_id=product_id,
                 printful_product_id=str(printful_product["id"]) if printful_product else "",
                 etsy_listing_id=str(etsy_listing["listing_id"]) if etsy_listing else "",
                 ebay_item_id=str(ebay_item_id) if ebay_item_id else "",

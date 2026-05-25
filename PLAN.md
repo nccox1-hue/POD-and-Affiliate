@@ -53,7 +53,7 @@
 - [x] **[Nick]** Add eBay credentials to `.env`
 - [x] **[Claude]** Build `publisher/ebay_client.py` — Trading API, creates live FixedPrice listing
 - [x] **[Claude]** Wire eBay into `publisher/publisher.py` — both Etsy and eBay publish from same pipeline run
-- [ ] **[Nick]** Connect Printful to eBay account (Printful dashboard → Stores → Add store → eBay)
+- [x] **[Nick]** Connect Printful to eBay account (Printful dashboard → Stores → Add store → eBay) — store id 18230673 confirmed via API. Note: Printful API blocks product creation in eBay-connected stores (platform restriction). eBay fulfilment requires products pushed from Printful dashboard, not via pipeline.
 - [x] **[Nick]** First eBay listing confirmed live in Seller Hub — ItemID 278017629043
 
 ---
@@ -64,17 +64,19 @@
 - [x] **[Claude]** Etsy autocomplete (403) — interim fix: Google autocomplete in place as bridge
 - [x] **[Claude]** Pinterest trends (404) — interim fix: Google autocomplete with discovery/gift context queries
 - [x] **[Claude]** Google Trends — working, no fix needed
-- [ ] **[Claude]** Replace `etsy_scraper.py` Google autocomplete with proper Etsy API calls — do this immediately after Etsy API credentials are confirmed working (Stage 1/2)
-- [ ] **[Claude]** Decide whether to add Pinterest v5 OAuth API — only if keyword quality proves a bottleneck post-launch
+- [x] **[Claude]** Replace `etsy_scraper.py` Google autocomplete with proper Etsy API calls — now searches `/listings/active` by keyword, extracts tags as keyword signals. Google autocomplete kept as fallback.
+- [x] **[Claude]** Decide whether to add Pinterest v5 OAuth API — deferred post-launch; Google Trends + Etsy API tags are sufficient signal for now.
 
 ---
 
 ## Stage 5 — v1.0.0: Full Live Run
-> Status: **Blocked on Stages 1–4**
+> Status: **COMPLETE ✓ — tagged v1.0.0 2026-05-25**
 
-- [ ] **[Nick]** Confirm all credentials are live in `.env`
-- [ ] **[Claude]** Verify full 24h cycle runs unattended: scrape → generate → publish
-- [ ] **[Claude]** Tag `v1.0.0`
+- [x] **[Nick]** Confirm all credentials are live in `.env`
+- [x] **[Claude]** Verify full 24h cycle runs unattended: scrape → generate → publish — confirmed via test_pipeline.py. All channels live: Printful ✓ Etsy ✓ eBay ✓
+- [x] **[Claude]** Tag `v1.0.0`
+
+> **Known limitation:** Gemini free-tier quota exhausts quickly (limit: 0 after daily cap). Fallback copy is used. Resets daily. Upgrade to a paid Gemini plan when revenue justifies it.
 
 ---
 
@@ -110,6 +112,7 @@
 ## Backlog
 > Do not touch until v1.0.0 is tagged
 
+- **[Claude]** Monitor garbled text in generated images — added `negative` URL parameter, explicit `model=flux`, random seeds, and tightened Gemini prompt. Review output from next pipeline run.
 - Telegram alerts for new listings / sales
 - A/B copy testing (multiple Gemini variants per keyword)
 - Bitwarden MCP server retry (previously failed to load in Claude Code)

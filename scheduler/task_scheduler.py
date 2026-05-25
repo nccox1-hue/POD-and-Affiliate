@@ -15,6 +15,7 @@ from database.db import AsyncSessionLocal
 from database.models import TrendRecord
 from scraper.trend_aggregator import TrendAggregator
 from publisher.publisher import Publisher
+from publisher.ebay_order_poller import EbayOrderPoller
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,7 @@ class PODScheduler:
         self.scheduler = AsyncIOScheduler()
         self.aggregator = TrendAggregator()
         self.publisher = Publisher()
+        self.order_poller = EbayOrderPoller()
 
     def start(self):
         self.scheduler.add_job(
@@ -33,9 +35,16 @@ class PODScheduler:
             next_run_time=datetime.now(),
             max_instances=1,
         )
+        self.scheduler.add_job(
+            self.order_poller.poll_and_fulfil,
+            IntervalTrigger(hours=2),
+            id="ebay_order_poll",
+            next_run_time=datetime.now(),
+            max_instances=1,
+        )
         self.scheduler.start()
         logger.info(
-            "POD Scheduler started — pipeline every %dh, %d listings/cycle, themes: %s",
+            "POD Scheduler started — pipeline every %dh, %d listings/cycle, themes: %s | eBay order poll every 2h",
             settings.scan_interval_hours,
             settings.listings_per_cycle,
             settings.themes,
