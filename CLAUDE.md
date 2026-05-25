@@ -15,7 +15,7 @@ Fully automated Print-on-Demand business system. Runs on a 24h schedule:
 2. Uses Google Gemini Flash (free) to write an image generation prompt and full Etsy listing (title, description, 13 tags)
 3. Generates a design image via Pollinations.ai (free, no API key)
 4. Uploads design to Printful, creates a sync product
-5. Creates a draft listing on Etsy with the image attached
+5. Generates a Printful mockup image (product on model/surface), publishes live listing on Etsy and eBay
 6. Logs everything to SQLite, viewable on a FastAPI dashboard at port 8081
 
 **Stack:** Python 3.13, FastAPI, APScheduler, SQLAlchemy (async), aiosqlite, httpx, aiohttp, google-genai, Pillow
@@ -35,7 +35,7 @@ Fully automated Print-on-Demand business system. Runs on a 24h schedule:
 - Never touch the stocks-scanner repo.
 - `.env` is gitignored — never commit secrets.
 - `pod` and `affiliate` branches never merge.
-- Listings are created as **drafts** for review before publishing.
+- Listings are published **live immediately** on both Etsy and eBay — no draft step.
 
 ## Credentials policy
 

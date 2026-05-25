@@ -87,7 +87,7 @@ class EtsyClient:
             "materials": materials[:13],
             "is_digital": False,
             "readiness_state_id": 1488409015052,  # Shop-specific value (queried from existing listing)
-            "state": "draft",           # Draft first — review before publishing
+            "state": "active",
         }
         # Remove None values
         payload = {k: v for k, v in payload.items() if v is not None}

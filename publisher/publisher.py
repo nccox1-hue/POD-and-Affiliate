@@ -143,7 +143,7 @@ class Publisher:
                 etsy_listing_id=str(etsy_listing["listing_id"]) if etsy_listing else "",
                 ebay_item_id=str(ebay_item_id) if ebay_item_id else "",
                 mockup_url=mockup_url or "",
-                status="draft" if etsy_listing else "design_only",
+                status="active" if etsy_listing else "design_only",
             )
             db.add(job)
             await db.commit()
