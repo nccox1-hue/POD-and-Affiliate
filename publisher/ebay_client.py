@@ -65,15 +65,26 @@ class EbayClient:
           {variations}
         </Variations>"""
 
+    def _item_specifics_xml(self, specifics: list) -> str:
+        return "".join(
+            f"<NameValueList><Name>{xml_escape(n)}</Name><Value>{xml_escape(v)}</Value></NameValueList>"
+            for n, v in specifics
+        )
+
     async def create_listing(
         self,
         title: str,
         description: str,
         price_gbp: float,
         image_url: Optional[str] = None,
+        category_id: str = CATEGORY_ID,
+        has_sizes: bool = True,
+        item_specifics: Optional[list] = None,
     ) -> Optional[str]:
         """
-        Create a fixed-price BuyItNow listing on eBay UK with S/M/L/XL/2XL size variations.
+        Create a fixed-price BuyItNow listing on eBay UK.
+        has_sizes=True adds S/M/L/XL/2XL variations (t-shirts, hoodies).
+        has_sizes=False creates a single-quantity listing (mugs, totes).
         Returns the ItemID string on success, None on failure.
         """
         if not self._token:
@@ -82,7 +93,13 @@ class EbayClient:
 
         title = xml_escape(title[:80])
         pic_xml = f"<PictureURL>{xml_escape(image_url)}</PictureURL>" if image_url else ""
-        variation_xml = self._variation_xml(price_gbp)
+        variation_xml = self._variation_xml(price_gbp) if has_sizes else ""
+        quantity_xml = "" if has_sizes else "<Quantity>999</Quantity>"
+        price_xml = "" if has_sizes else f'<StartPrice currencyID="GBP">{price_gbp:.2f}</StartPrice>'
+        specifics_xml = self._item_specifics_xml(item_specifics) if item_specifics else self._item_specifics_xml([
+            ("Brand", "NickPrintCo"), ("Department", "Unisex Adults"),
+            ("Type", "T-Shirt"), ("Size Type", "Regular"), ("Colour", "White"),
+        ])
 
         xml = textwrap.dedent(f"""
             <?xml version="1.0" encoding="utf-8"?>
@@ -94,14 +111,16 @@ class EbayClient:
                 <Title>{title}</Title>
                 <Description><![CDATA[{description}]]></Description>
                 <PrimaryCategory>
-                  <CategoryID>{CATEGORY_ID}</CategoryID>
+                  <CategoryID>{category_id}</CategoryID>
                 </PrimaryCategory>
+                {price_xml}
                 <ConditionID>1000</ConditionID>
                 <Country>GB</Country>
                 <Currency>GBP</Currency>
                 <DispatchTimeMax>5</DispatchTimeMax>
                 <ListingDuration>GTC</ListingDuration>
                 <ListingType>FixedPriceItem</ListingType>
+                {quantity_xml}
                 <PostalCode>{xml_escape(settings.ebay_postal_code)}</PostalCode>
                 <ReturnPolicy>
                   <ReturnsAcceptedOption>ReturnsAccepted</ReturnsAcceptedOption>
@@ -122,11 +141,7 @@ class EbayClient:
                   {pic_xml}
                 </PictureDetails>
                 <ItemSpecifics>
-                  <NameValueList><Name>Brand</Name><Value>NickPrintCo</Value></NameValueList>
-                  <NameValueList><Name>Department</Name><Value>Unisex Adults</Value></NameValueList>
-                  <NameValueList><Name>Type</Name><Value>T-Shirt</Value></NameValueList>
-                  <NameValueList><Name>Size Type</Name><Value>Regular</Value></NameValueList>
-                  <NameValueList><Name>Colour</Name><Value>White</Value></NameValueList>
+                  {specifics_xml}
                 </ItemSpecifics>
                 {variation_xml}
                 <Site>UK</Site>

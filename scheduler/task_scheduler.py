@@ -72,9 +72,11 @@ class PODScheduler:
         fresh = [o for o in opportunities if o["keyword"].lower() not in used_keywords]
         logger.info("Fresh opportunities: %d (filtered %d already used)", len(fresh), len(opportunities) - len(fresh))
 
-        # 3. Process top N
+        # 3. Process top N — rotate through product types across listings
+        product_ids = settings.product_id_list or [71]
         successes = 0
         for i, opportunity in enumerate(fresh[:settings.listings_per_cycle]):
+            opportunity["product_id"] = product_ids[i % len(product_ids)]
             if i > 0:
                 await asyncio.sleep(10)  # avoid Gemini free-tier rate limit between listings
             try:

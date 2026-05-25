@@ -15,29 +15,70 @@ logger = logging.getLogger(__name__)
 
 PRINTFUL_API = "https://api.printful.com"
 
-# Printful variant IDs for the most popular products
-# T-shirt (Bella+Canvas 3001) size/colour variants — white, black, navy
+# Product catalogue — Printful product IDs with variant IDs and platform metadata.
+# Etsy taxonomy IDs: t-shirt=559 (confirmed), hoodie/mug/tote are approximate and
+# may need tweaking in the Etsy dashboard after draft review.
+# eBay category IDs are for eBay UK.
 PRODUCT_VARIANTS = {
-    71: {  # Unisex Staple T-Shirt (Bella+Canvas 3001)
+    71: {
         "name": "Unisex T-Shirt",
-        "variants": [4012, 4013, 4014, 4015, 4016, 4017],  # S-2XL in white
+        "variants": [4012, 4013, 4014, 4015, 4016],  # S/M/L/XL/2XL white
         "placement": "front",
         "print_area_width": 4500,
         "print_area_height": 5400,
+        "has_sizes": True,
+        "base_cost_gbp": 10.0,
+        "etsy_taxonomy_id": 559,
+        "ebay_category_id": "15687",
+        "ebay_item_specifics": [
+            ("Brand", "NickPrintCo"), ("Department", "Unisex Adults"),
+            ("Type", "T-Shirt"), ("Size Type", "Regular"), ("Colour", "White"),
+        ],
     },
-    19: {  # Mug 11oz
+    380: {
+        "name": "Unisex Hoodie",
+        "variants": [10774, 10775, 10776, 10777, 10778],  # S/M/L/XL/2XL white
+        "placement": "front",
+        "print_area_width": 3600,
+        "print_area_height": 4500,
+        "has_sizes": True,
+        "base_cost_gbp": 25.0,
+        "etsy_taxonomy_id": 1013,
+        "ebay_category_id": "57990",
+        "ebay_item_specifics": [
+            ("Brand", "NickPrintCo"), ("Department", "Unisex Adults"),
+            ("Type", "Hoodie"), ("Size Type", "Regular"), ("Colour", "White"),
+        ],
+    },
+    19: {
         "name": "Mug 11oz",
         "variants": [1320],
         "placement": "front",
         "print_area_width": 2400,
         "print_area_height": 1200,
+        "has_sizes": False,
+        "base_cost_gbp": 8.0,
+        "etsy_taxonomy_id": 6097,
+        "ebay_category_id": "46009",
+        "ebay_item_specifics": [
+            ("Brand", "NickPrintCo"), ("Type", "Mug"), ("Capacity", "11oz"),
+            ("Material", "Ceramic"), ("Colour", "White"),
+        ],
     },
-    358: {  # Canvas Tote Bag
+    358: {
         "name": "Canvas Tote Bag",
         "variants": [9964],
         "placement": "front",
         "print_area_width": 3000,
         "print_area_height": 3000,
+        "has_sizes": False,
+        "base_cost_gbp": 12.0,
+        "etsy_taxonomy_id": 1252,
+        "ebay_category_id": "169291",
+        "ebay_item_specifics": [
+            ("Brand", "NickPrintCo"), ("Type", "Tote Bag"),
+            ("Material", "Canvas"), ("Colour", "Natural"),
+        ],
     },
 }
 
@@ -132,6 +173,27 @@ class PrintfulClient:
             logger.error("Printful create product error: %s", e)
             return None
 
+    async def download_mockup(self, url: str, dest_path: str) -> bool:
+        """Download a mockup image from a URL to a local file. Returns True on success."""
+        import ssl
+        # Printful S3 URLs are trusted — bypass SSL verification to avoid Windows cert issues
+        ssl_ctx = ssl.create_default_context()
+        ssl_ctx.check_hostname = False
+        ssl_ctx.verify_mode = ssl.CERT_NONE
+        try:
+            connector = aiohttp.TCPConnector(ssl=ssl_ctx)
+            async with aiohttp.ClientSession(connector=connector) as session:
+                async with session.get(url, timeout=aiohttp.ClientTimeout(total=30)) as resp:
+                    if resp.status == 200:
+                        with open(dest_path, "wb") as f:
+                            f.write(await resp.read())
+                        logger.info("Mockup downloaded -> %s", dest_path)
+                        return True
+            return False
+        except Exception as e:
+            logger.error("Mockup download failed: %s", e)
+            return False
+
     async def create_order(
         self,
         recipient: Dict[str, Any],
@@ -177,23 +239,28 @@ class PrintfulClient:
                     json=payload,
                 ) as resp:
                     data = await resp.json()
-                    task_key = data.get("result", {}).get("task_key")
+                    result = data.get("result", {})
+                    task_key = result.get("task_key") if isinstance(result, dict) else None
                     if not task_key:
+                        logger.warning("Printful mockup task creation failed: %s", data)
                         return None
+                    logger.info("Printful mockup task created: %s", task_key)
 
                 # Poll for mockup result
-                for _ in range(15):
+                for attempt in range(15):
                     await asyncio.sleep(4)
                     async with session.get(
                         f"{PRINTFUL_API}/mockup-generator/task?task_key={task_key}"
                     ) as resp:
                         result = await resp.json()
                         status = result.get("result", {}).get("status")
+                        logger.debug("Printful mockup poll %d: status=%s", attempt + 1, status)
                         if status == "completed":
                             mockups = result["result"].get("mockups", [])
                             if mockups:
                                 return mockups[0]["mockup_url"]
                         elif status == "failed":
+                            logger.warning("Printful mockup task failed: %s", result)
                             return None
 
         except Exception as e:

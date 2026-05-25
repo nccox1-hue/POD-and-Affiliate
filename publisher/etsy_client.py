@@ -64,6 +64,7 @@ class EtsyClient:
         tags: List[str],
         materials: List[str],
         quantity: int = 999,
+        taxonomy_id: int = 559,
     ) -> Optional[Dict[str, Any]]:
         """Create a draft listing on Etsy. Returns listing data including listing_id."""
         if not settings.etsy_access_token or not settings.etsy_shop_id:
@@ -80,7 +81,7 @@ class EtsyClient:
             "price": price_gbp,
             "who_made": "i_did",
             "when_made": "made_to_order",
-            "taxonomy_id": 559,          # T-Shirts (verified from existing shop listing)
+            "taxonomy_id": taxonomy_id,
             "shipping_profile_id": int(settings.etsy_shipping_profile_id) if settings.etsy_shipping_profile_id else None,
             "tags": clean_tags,
             "materials": materials[:13],
