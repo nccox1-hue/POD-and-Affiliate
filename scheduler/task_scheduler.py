@@ -1,38 +1,45 @@
 """
-Scheduler: scans for trends → generates designs → creates Etsy listings.
-Runs once every SCAN_INTERVAL_HOURS (default: 24h).
+Scheduler for the arbitrage bot.
+
+Jobs:
+  arbitrage_pipeline  — scan eBay sold listings, source, margin check, list. Every SCAN_INTERVAL_HOURS (default 24h).
+  arbitrage_monitor   — price/stock check on active listings, end/pause as needed. Every 12h.
+  ebay_order_poll     — check for paid eBay orders, submit to supplier, write back tracking. Every 2h.
 """
-import asyncio
 import logging
 from datetime import datetime
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
-from sqlalchemy import select
 
 from config.settings import settings
-from database.db import AsyncSessionLocal
-from database.models import TrendRecord
-from scraper.trend_aggregator import TrendAggregator
-from publisher.publisher import Publisher
+from arbitrage.pipeline import ArbitragePipeline
+from arbitrage.monitor import ArbitrageMonitor
 from publisher.ebay_order_poller import EbayOrderPoller
 
 logger = logging.getLogger(__name__)
 
 
-class PODScheduler:
+class ArbitrageScheduler:
     def __init__(self):
         self.scheduler = AsyncIOScheduler()
-        self.aggregator = TrendAggregator()
-        self.publisher = Publisher()
+        self.pipeline = ArbitragePipeline()
+        self.monitor = ArbitrageMonitor()
         self.order_poller = EbayOrderPoller()
 
-    def start(self):
+    def start(self) -> None:
         self.scheduler.add_job(
-            self.run_pipeline,
+            self.pipeline.run,
             IntervalTrigger(hours=settings.scan_interval_hours),
-            id="pod_pipeline",
+            id="arbitrage_pipeline",
             next_run_time=datetime.now(),
+            max_instances=1,
+        )
+        self.scheduler.add_job(
+            self.monitor.run,
+            IntervalTrigger(hours=12),
+            id="arbitrage_monitor",
+            next_run_time=None,  # don't run immediately on startup — pipeline runs first
             max_instances=1,
         )
         self.scheduler.add_job(
@@ -44,58 +51,9 @@ class PODScheduler:
         )
         self.scheduler.start()
         logger.info(
-            "POD Scheduler started — pipeline every %dh, %d listings/cycle, themes: %s | eBay order poll every 2h",
+            "Arbitrage scheduler started — pipeline every %dh | monitor every 12h | order poll every 2h",
             settings.scan_interval_hours,
-            settings.listings_per_cycle,
-            settings.themes,
         )
 
-    def stop(self):
+    def stop(self) -> None:
         self.scheduler.shutdown()
-
-    async def run_pipeline(self):
-        logger.info("=== POD Pipeline starting ===")
-
-        # 1. Scan for trending design opportunities
-        opportunities = await self.aggregator.scan()
-        if not opportunities:
-            logger.warning("No opportunities found this cycle")
-            return
-
-        # 2. Filter out already-used keywords
-        async with AsyncSessionLocal() as db:
-            used_result = await db.execute(
-                select(TrendRecord.keyword).where(TrendRecord.used == True)
-            )
-            used_keywords = {row[0].lower() for row in used_result.all()}
-
-        fresh = [o for o in opportunities if o["keyword"].lower() not in used_keywords]
-        logger.info("Fresh opportunities: %d (filtered %d already used)", len(fresh), len(opportunities) - len(fresh))
-
-        # 3. Process top N — rotate through product types across listings
-        product_ids = settings.product_id_list or [71]
-        successes = 0
-        for i, opportunity in enumerate(fresh[:settings.listings_per_cycle]):
-            opportunity["product_id"] = product_ids[i % len(product_ids)]
-            if i > 0:
-                await asyncio.sleep(10)  # avoid Gemini free-tier rate limit between listings
-            try:
-                # Save trend record
-                async with AsyncSessionLocal() as db:
-                    record = TrendRecord(
-                        keyword=opportunity["keyword"],
-                        source=opportunity.get("source", "unknown"),
-                        theme=opportunity.get("theme", "general"),
-                        score=opportunity.get("score", 0.0),
-                        used=True,
-                    )
-                    db.add(record)
-                    await db.commit()
-
-                success = await self.publisher.run(opportunity)
-                if success:
-                    successes += 1
-            except Exception as e:
-                logger.error("Pipeline error for '%s': %s", opportunity.get("keyword"), e)
-
-        logger.info("=== POD Pipeline complete: %d/%d listings created ===", successes, min(len(fresh), settings.listings_per_cycle))

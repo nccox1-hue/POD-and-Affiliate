@@ -9,23 +9,28 @@ Project context for Claude Code sessions. Keep this updated at the end of each s
 
 ## Project overview
 
-Fully automated Print-on-Demand business system. Runs on a 24h schedule:
+**Pivoted to eBay Arbitrage Bot (session 2026-05-26).** The POD pipeline is fully replaced.
 
-1. Scrapes trending keywords (Etsy autocomplete, Google Trends, Pinterest Trends)
-2. Uses Google Gemini Flash (free) to write an image generation prompt and full Etsy listing (title, description, 13 tags)
-3. Generates a design image via Pollinations.ai (free, no API key)
-4. Uploads design to Printful, creates a sync product
-5. Generates a Printful mockup image (product on model/surface), publishes live listing on Etsy and eBay
-6. Logs everything to SQLite, viewable on a FastAPI dashboard at port 8081
+The bot runs on a 24h schedule:
 
-**Stack:** Python 3.13, FastAPI, APScheduler, SQLAlchemy (async), aiosqlite, httpx, aiohttp, google-genai, Pillow
+1. Scans eBay sold listings (Finding API `findCompletedItems`) across target categories
+2. For each sold item, searches Avasam (primary) then BigBuy (secondary) for a matching wholesale product
+3. Runs margin check: profit ≥ £3 AND margin ≥ 25%
+4. Claude writes eBay title + description from supplier product data + sold listing title
+5. Creates eBay listing via Trading API
+6. Every 12h: monitor checks supplier price/stock — pauses or ends listings if margin collapses or stock runs out
+7. Every 2h: order poller checks for paid eBay orders — submits to supplier API for fulfilment, polls tracking, writes back to eBay via CompleteSale
+
+Zero stock. Zero design work. Zero upfront cost. Proven sales signal.
+
+**Stack:** Python 3.13, FastAPI, APScheduler, SQLAlchemy (async), aiosqlite, httpx, Anthropic Claude Haiku, Jinja2
 
 ---
 
 ## Branch rules
 
-- `pod` — this branch. POD automation system only.
-- `affiliate` — future niche content site (GitHub Pages). Never started.
+- `pod` — this branch. Arbitrage bot.
+- `affiliate` — future niche content site (GitHub Pages). Not yet started.
 - **These two branches never merge. There is no main branch.**
 
 ---
@@ -35,11 +40,10 @@ Fully automated Print-on-Demand business system. Runs on a 24h schedule:
 - Never touch the stocks-scanner repo.
 - `.env` is gitignored — never commit secrets.
 - `pod` and `affiliate` branches never merge.
-- Listings are published **live immediately** on both Etsy and eBay — no draft step.
 
 ## Credentials policy
 
-`.env` is the single store for **all** account credentials for this project — API keys, secrets, tokens, and also usernames/passwords for every service (Printful, Etsy, Proton Mail, etc.). This is intentional. `.env` is gitignored and automatically backed up to Proton Drive (`proton:NickPrintCo-Credentials/`) via rclone on every session end. Never question or pushback on storing login credentials in `.env` for this project.
+`.env` is the single store for **all** account credentials — API keys, secrets, tokens. This is intentional. `.env` is gitignored and backed up to Proton Drive. Never question storing credentials in `.env` for this project.
 
 ---
 
@@ -53,20 +57,17 @@ C:\Users\nickc\AppData\Local\Python\python-3.13-64\python.exe
 PATH fix applied (permanent, user-level) — restart terminal to pick up `python` and `pip` as bare commands.
 
 ### MSVCP140.dll fix
-`greenlet` (required by SQLAlchemy async) needs `MSVCP140.dll` which isn't in System32 on this machine.
-Fix applied: copied from Edge install:
+`greenlet` (required by SQLAlchemy async) needs `MSVCP140.dll`:
 ```
 C:\Program Files (x86)\Microsoft\Edge\Application\148.0.3967.70\msvcp140.dll
 → C:\Users\nickc\AppData\Local\Python\python-3.13-64\msvcp140.dll
 ```
-**If running from a fresh terminal and greenlet fails, set PATH before running:**
+**If greenlet fails from a fresh terminal, set PATH first:**
 ```powershell
 $env:PATH = "C:\Users\nickc\AppData\Local\Python\python-3.13-64;" + $env:PATH
 ```
-After a full terminal restart this should be automatic.
 
 ### pip rule
-Python 3.14 was uninstalled (was silently intercepting pip installs).
 **Always use `python -m pip install` to install into 3.13 — do not rely on bare `pip`.**
 
 ### Running the bot
@@ -79,31 +80,29 @@ Dashboard: http://localhost:8081
 
 ---
 
-## Current status (session: 2026-05-24)
+## Current status (session: 2026-05-27)
 
-### v0.1.0 COMPLETE ✓
-### v0.2.0 COMPLETE ✓ — First Etsy draft listing created via API (listing id: 4510329894)
-### v0.3.0 COMPLETE ✓ — Printful product creation working, full pipeline confirmed end-to-end
+### v0.3.0 COMPLETE ✓ — Last POD milestone
+### v1.0.0-arb IN PROGRESS — awaiting first live production scan
 
-### Completed this session
-- **eBay channel live** — `publisher/ebay_client.py` built (Trading API, XML, Auth'n'Auth token, UK site ID 3). First live listing: ItemID 278017629043. Pipeline now publishes to both Etsy and eBay in one run.
-- **Printful blocker resolved** — created a second Printful store "NickPrintCo API" (Manual/API type, ID 18226038). Product creation (`/store/products`) now works via this store. File uploads still use the Etsy-integrated store (ID 18218316).
-- **Dual Printful store wiring** — `config/settings.py` has `printful_api_store_key` + `printful_api_store_id`. `printful_client.py` uses API store headers for `create_sync_product` and `get_mockup_url`; Etsy store headers for `upload_design_file`.
-- **Negative text prompt strengthened** — Pollinations prompt now has six explicit no-text instructions + `&nologo=true` to reduce garbled text in generated images.
-- **eBay XML escaping fixed** — Pollinations URLs contain `&` chars which broke raw XML. Fixed with `xml.sax.saxutils.escape`.
-- **Full pipeline test passed** — `test_pipeline.py` ran end-to-end: design generated, Printful product created (id 434781336), Etsy draft listing created (id 4510564932), eBay live listing created (ItemID 278017749827). Gemini still quota-exhausted so fallback copy used — full AI copy will run when quota resets.
-- **AFFILIATE_PLAN.md created** — full affiliate site plan: niche = Automation/AI/Productivity, platform = Jekyll on GitHub Pages (`affiliate` branch), programmes = Amazon Associates → ClickUp → Make → Jasper → HubSpot.
-- **v0.3.0 tagged**
+### Completed this session (2026-05-27)
+- **Diagnosed eBay Finding API 500 errors** — was a rate limit (`errorId 10001`), not a parameter error. Parameters, App ID, and all 7 category IDs confirmed correct via sandbox.
+- **Fixed scanner error handling** — logs full response body on non-200; exits cleanly on rate limit instead of retrying
+- **Reduced scan volume** — default pages per category: 2 → 1 (7 API calls/scan instead of 14)
+- **eBay sandbox mode** — `EBAY_APP_ID_SANDBOX=NickCox-NickPrin-SBX-f4e87e45f-a1d1ef3e`, `EBAY_USE_SANDBOX=True/False` toggle in settings + `.env`
+- **Sandbox verified** — all 7 categories return HTTP 200, 0 results (expected — no real completed sales in sandbox)
+- **Supplier keys confirmed live** — `AVASAM_CONSUMER_KEY` + `AVASAM_SECRET_KEY` + `BIGBUY_API_KEY_PROD` all in `.env`
+- **PLAN.md rewritten** — replaced stale POD content with current arbitrage status and next actions
 
-### Current blockers
-- **Gemini daily quota** — exhausts quickly on free tier. Resets daily. Fallback copy works. Not a code issue.
+### Current state
+Bot running in sandbox mode. All code and API calls confirmed correct. Production rate limit resets **~08:00 BST 2026-05-28**.
 
-### Notes on test listings
-- Test Etsy draft `4510564932` and Printful product `434781336` created during this session's pipeline test — delete from dashboards manually.
-
-### Outstanding actions for Nick
-- Connect Printful to eBay account (Printful dashboard → Stores → Add store → eBay)
-- Sign up for affiliate programmes: Amazon Associates, ClickUp, Make
+### Next action
+1. At/after 08:00 BST 2026-05-28: set `EBAY_USE_SANDBOX=False` in `.env`
+2. Run `python main.py`
+3. Watch for `INFO eBay scanner: X sold items fetched` — confirms production scan working
+4. Watch for supplier match + margin filter logs — confirms full pipeline working
+5. First listing created automatically — confirm in eBay Seller Hub → tag `v1.0.0-arb`
 
 ---
 
@@ -118,42 +117,37 @@ See [PLAN.md](PLAN.md) — work top to bottom, one item at a time.
 |---|---|
 | `main.py` | Entrypoint — FastAPI + uvicorn + scheduler |
 | `config/settings.py` | All env var definitions |
-| `config/themes.py` | Theme catalogue (12 themes defined, 6 active in `.env`) |
-| `generator/listing_generator.py` | Gemini → Etsy listing copy |
-| `generator/design_generator.py` | Gemini prompt builder + Pollinations image gen |
-| `publisher/publisher.py` | Full pipeline orchestration |
-| `publisher/etsy_client.py` | Etsy API client |
-| `publisher/printful_client.py` | Printful API client |
+| `scanner/ebay_sold_scanner.py` | eBay Finding API — finds sold listings |
+| `scanner/margin_calculator.py` | Fee calc, profit filter, scoring |
+| `scanner/avasam_sourcer.py` | Avasam API client (stub until key set) |
+| `scanner/bigbuy_sourcer.py` | BigBuy API client (stub until key set) |
+| `arbitrage/pipeline.py` | Full cycle orchestration |
+| `arbitrage/monitor.py` | 12h price/stock monitor |
+| `generator/listing_generator.py` | Claude/Gemini eBay listing copy |
+| `publisher/ebay_client.py` | eBay Trading API client |
+| `publisher/ebay_order_poller.py` | Order detection + supplier fulfilment |
 | `scheduler/task_scheduler.py` | APScheduler wrapper |
 | `dashboard/routes.py` | FastAPI dashboard routes |
-| `database/models.py` | SQLAlchemy models (DesignJob) |
+| `database/models.py` | SQLAlchemy models |
 
 ---
 
-## Pricing
+## Pricing / margins
 
-- Base cost assumption: £10 (Bella+Canvas 3001 from Printful)
-- Price multiplier: 2.5x → ~£25 retail
-- Configured in `.env` as `PRICE_MULTIPLIER=2.5`
+- **Min profit threshold:** £3.00 (configurable via `MIN_PROFIT_GBP` in `.env`)
+- **Min margin threshold:** 25% (configurable via `MIN_MARGIN_PCT` in `.env`)
+- **End listing if margin drops below:** 15% (hardcoded in `arbitrage/monitor.py`)
+- **eBay FVF:** 12.8% + £0.30 per transaction
+- **Scan price range:** £8–£80 (configurable via `MIN_EBAY_PRICE` / `MAX_EBAY_PRICE`)
 
 ## Versioning
 
-Git tags only — no VERSION file, no CHANGELOG. Tag at milestones, not every session.
+Git tags only — no VERSION file, no CHANGELOG.
 
 | Tag | Milestone |
 |-----|-----------|
-| `v0.1.0` | Pipeline verified end-to-end: Gemini returns content, Pollinations returns image |
-| `v0.2.0` | First Etsy draft listing created successfully via API |
-| `v0.3.0` | First Printful product synced |
-| `v1.0.0` | Full live run: all credentials set, Printful + Etsy both working in one cycle |
-| `v1.x.0` | Significant feature additions post-launch (Telegram alerts, A/B copy, etc.) |
-
-Tag format: `git tag v0.x.0 -m "short description of milestone"`
-
----
-
-## Business model
-
-- Sole trader to start
-- Convert to Ltd company when profit hits ~£25k/year
-- All business income through Monzo Business Pro account
+| `v0.1.0` | POD pipeline end-to-end verified |
+| `v0.2.0` | Etsy API live |
+| `v0.3.0` | Printful + eBay pipeline confirmed |
+| `v1.0.0-arb` | Arbitrage bot first live listing (needs supplier key) |
+| `v1.x.0-arb` | Feature additions (Amazon benchmark, Telegram alerts, etc.) |

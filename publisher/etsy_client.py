@@ -26,6 +26,40 @@ class EtsyClient:
             "Authorization": f"Bearer {self._access_token}",
             "Content-Type": "application/json",
         }
+        self._return_policy_id: Optional[int] = None
+
+    async def _ensure_return_policy(self) -> Optional[int]:
+        """Fetch the shop return policy ID. Cached after first call.
+        Falls back to ETSY_RETURN_POLICY_ID in .env if API fetch fails."""
+        if self._return_policy_id:
+            return self._return_policy_id
+
+        # Use .env value if configured
+        if settings.etsy_return_policy_id:
+            self._return_policy_id = int(settings.etsy_return_policy_id)
+            return self._return_policy_id
+
+        # Try to fetch from API (requires listings_r scope)
+        async with aiohttp.ClientSession(headers=self.headers) as session:
+            url = f"{ETSY_API}/application/shops/{settings.etsy_shop_id}/policies/return"
+            async with session.get(url) as resp:
+                if resp.status == 200:
+                    data = await resp.json()
+                    results = data.get("results") or [data]
+                    if results:
+                        policy_id = results[0].get("return_policy_id")
+                        if policy_id:
+                            self._return_policy_id = int(policy_id)
+                            logger.info("Etsy: return policy fetched -> id=%s", policy_id)
+                            return self._return_policy_id
+                else:
+                    logger.warning(
+                        "Etsy: cannot fetch return policy (%s) — "
+                        "set ETSY_RETURN_POLICY_ID in .env (find it via Etsy dashboard > Policies)",
+                        resp.status,
+                    )
+
+        return None
 
     async def _refresh_token(self) -> bool:
         """Refresh the Etsy access token using the refresh token. Updates .env and headers."""
@@ -71,8 +105,17 @@ class EtsyClient:
             logger.warning("Etsy credentials not configured")
             return None
 
+        return_policy_id = await self._ensure_return_policy()
+
+        import re as _re
         # Etsy tag rules: max 13 tags, each max 20 chars
         clean_tags = [t[:20] for t in tags[:13]]
+        # Etsy material rules: letters, numbers, spaces, hyphens, apostrophes, ampersands; max 45 chars
+        clean_materials = [
+            _re.sub(r"[^a-zA-Z0-9 \-&']", "", m).strip()[:45]
+            for m in materials[:13]
+        ]
+        clean_materials = [m for m in clean_materials if m]
 
         payload = {
             "quantity": quantity,
@@ -84,10 +127,11 @@ class EtsyClient:
             "taxonomy_id": taxonomy_id,
             "shipping_profile_id": int(settings.etsy_shipping_profile_id) if settings.etsy_shipping_profile_id else None,
             "tags": clean_tags,
-            "materials": materials[:13],
+            "materials": clean_materials or ["Cotton"],
             "is_digital": False,
-            "readiness_state_id": 1488409015052,  # Shop-specific value (queried from existing listing)
-            "state": "active",
+            "state": "draft",
+            "readiness_state_id": 1488409015052,
+            "return_policy_id": return_policy_id,
         }
         # Remove None values
         payload = {k: v for k, v in payload.items() if v is not None}
@@ -118,8 +162,8 @@ class EtsyClient:
         listing_id: int,
         image_path: str,
         rank: int = 1,
-    ) -> bool:
-        """Upload a product image to an Etsy listing."""
+    ) -> Optional[str]:
+        """Upload a product image to an Etsy listing. Returns the full-size CDN URL on success."""
         try:
             with open(image_path, "rb") as f:
                 image_data = f.read()
@@ -142,14 +186,16 @@ class EtsyClient:
             async with aiohttp.ClientSession(headers=upload_headers) as session:
                 url = f"{ETSY_API}/application/shops/{settings.etsy_shop_id}/listings/{listing_id}/images"
                 async with session.post(url, data=form) as resp:
+                    data = await resp.json()
                     if resp.status in (200, 201):
-                        logger.info("Etsy: image uploaded to listing %s", listing_id)
-                        return True
-                    logger.error("Etsy image upload error %s: %s", resp.status, await resp.text())
-                    return False
+                        cdn_url = data.get("url_fullxfull") or data.get("url_570xN") or ""
+                        logger.info("Etsy: image uploaded to listing %s -> %s", listing_id, cdn_url[:60])
+                        return cdn_url
+                    logger.error("Etsy image upload error %s: %s", resp.status, data)
+                    return None
         except Exception as e:
             logger.error("Etsy upload image error: %s", e)
-            return False
+            return None
 
     async def publish_listing(self, listing_id: int) -> bool:
         """Change a draft listing to active (published)."""

@@ -1,119 +1,107 @@
-# POD Business — Master Plan
+# POD-and-Affiliate — Master Plan
 
-> **This is the single source of truth for what to work on next.**
-> Open this first at the start of every session. Work top-to-bottom. Do not skip ahead.
-> **Two concurrent workstreams:** POD pipeline (stages below) + Affiliate site (see [AFFILIATE_PLAN.md](AFFILIATE_PLAN.md)).
-
----
-
-## Naming rules
-> Use real name (Nick Cox) anywhere that touches money or tax: Etsy billing/payouts, Printful, Starling, HMRC.
-> Use brand/pseudonym everywhere public-facing: Etsy shop name, display name, Proton Mail.
-> Proton Mail display name: **Shop 2026**
-> **Etsy shop name: NickPrintCo**
+> **START EVERY SESSION HERE.** Work the next unchecked item. Do not skip ahead.
+> **Business context:** See [BUSINESS_PLAN.md](BUSINESS_PLAN.md).
 
 ---
 
-## Stage 1 — Accounts & Credentials
-> Status: **COMPLETE ✓**
+## Project status
 
-- [x] **[Nick]** Create Etsy seller account at etsy.com — approved ✓
-- [x] **[Nick]** Register Etsy developer app → `ETSY_API_KEY` + `ETSY_API_SECRET` confirmed working
-- [x] **[Nick]** Run `setup_etsy_auth.py` → `ETSY_ACCESS_TOKEN` + `ETSY_REFRESH_TOKEN` saved
-- [x] **[Nick]** Run `get_shop_info.py` → `ETSY_SHOP_ID=66128682`, `ETSY_SHIPPING_PROFILE_ID=306841979260` saved
-- [x] **[Nick]** Create Printful account → Etsy store connected → `PRINTFUL_API_KEY` + `PRINTFUL_STORE_ID` in `.env`
+**Pivoted to eBay Arbitrage Bot (2026-05-26).** POD pipeline is fully replaced and archived.
+Bot stack: Python 3.13, FastAPI, APScheduler, SQLAlchemy async, httpx, Claude Haiku.
 
----
-
-## Stage 2 — v0.2.0: First Draft Listing
-> Status: **COMPLETE ✓**
-
-- [x] **[Claude]** Run pipeline with a hardcoded keyword (bypass scraper)
-- [x] **[Nick]** Confirm draft listing appears in Etsy shop — listing id 4510329894 confirmed
-- [ ] **[Claude]** Tag `v0.2.0`
+Pipeline (fully built):
+1. Scan eBay sold listings → 2. Match supplier (Avasam / BigBuy) → 3. Margin check →
+4. Create eBay listing → 5. Monitor price/stock → 6. Fulfil paid orders
 
 ---
 
-## Stage 3 — v0.3.0: First Printful Sync
-> Status: **COMPLETE ✓ — Printful product created (id 434781336) via NickPrintCo API store. Tagged v0.3.0.**
-> Solution: created a second Printful store (Manual/API type, id 18226038) alongside the Etsy-connected store. File uploads use Etsy store; product creation uses API store.
+## Stage 1 — Accounts ✓
 
-- [x] **[Claude]** Investigate correct Printful API endpoint for Etsy-integrated stores
-- [x] **[Nick]** Confirm Printful product created + mockup URLs working
-- [x] **[Claude]** Tag `v0.3.0`
-
----
-
-## Stage 3b — eBay Channel (parallel to Stage 3)
-> Status: **COMPLETE ✓ — First live eBay listing created 2026-05-24, ItemID 278017629043**
-> Uses Trading API (Auth'n'Auth token) — listings go live immediately, no draft state.
-> Existing account: username `cox333`, business name `333 Trading`, 790 feedback — strong starting position.
-
-- [x] **[Nick]** eBay developer account approved → App ID, Dev ID, Cert ID collected
-- [x] **[Nick]** Add eBay credentials to `.env`
-- [x] **[Claude]** Build `publisher/ebay_client.py` — Trading API, creates live FixedPrice listing
-- [x] **[Claude]** Wire eBay into `publisher/publisher.py` — both Etsy and eBay publish from same pipeline run
-- [x] **[Nick]** Connect Printful to eBay account (Printful dashboard → Stores → Add store → eBay) — store id 18230673 confirmed via API. Note: Printful API blocks product creation in eBay-connected stores (platform restriction). eBay fulfilment requires products pushed from Printful dashboard, not via pipeline.
-- [x] **[Nick]** First eBay listing confirmed live in Seller Hub — ItemID 278017629043
+- [x] eBay developer account — App ID, Dev ID, Cert ID, Access Token in `.env`
+- [x] Avasam developer account — `AVASAM_CONSUMER_KEY` + `AVASAM_SECRET_KEY` in `.env`
+- [x] BigBuy account — `BIGBUY_API_KEY_PROD` + `BIGBUY_API_KEY_TEST` in `.env`
+- [ ] **[Nick]** Amazon Associates UK — amazon.co.uk/associates (free, ~1-3 days). Unlocks PA API (price benchmarking) + affiliate programme.
 
 ---
 
-## Stage 4 — Fix Scrapers
-> Status: **Blocked on Stage 3** (pipeline can run without scrapers using fixed keywords)
+## Stage 2 — Bot live ✓ (scanner blocked on rate limit reset)
 
-- [x] **[Claude]** Etsy autocomplete (403) — interim fix: Google autocomplete in place as bridge
-- [x] **[Claude]** Pinterest trends (404) — interim fix: Google autocomplete with discovery/gift context queries
-- [x] **[Claude]** Google Trends — working, no fix needed
-- [x] **[Claude]** Replace `etsy_scraper.py` Google autocomplete with proper Etsy API calls — now searches `/listings/active` by keyword, extracts tags as keyword signals. Google autocomplete kept as fallback.
-- [x] **[Claude]** Decide whether to add Pinterest v5 OAuth API — deferred post-launch; Google Trends + Etsy API tags are sufficient signal for now.
+All code complete. Bot runs. Three issues resolved as of 2026-05-27:
 
----
+- [x] eBay Finding API parameters correct — confirmed via diagnostic
+- [x] Rate limit hit from test runs — **resets ~07:00 UTC 2026-05-28**. Scanner will work after that.
+- [x] Avasam two-step auth — `consumer_key + secret_key → access_token` — built correctly
+- [x] BigBuy prod/test environments — both keys in `.env`, `BIGBUY_USE_SANDBOX=False`
 
-## Stage 5 — v1.0.0: Full Live Run
-> Status: **COMPLETE ✓ — tagged v1.0.0 2026-05-25**
-
-- [x] **[Nick]** Confirm all credentials are live in `.env`
-- [x] **[Claude]** Verify full 24h cycle runs unattended: scrape → generate → publish — confirmed via test_pipeline.py. All channels live: Printful ✓ Etsy ✓ eBay ✓
-- [x] **[Claude]** Tag `v1.0.0`
-
-> **Known limitation:** Gemini free-tier quota exhausts quickly (limit: 0 after daily cap). Fallback copy is used. Resets daily. Upgrade to a paid Gemini plan when revenue justifies it.
+**After rate limit resets (tomorrow morning):**
+- [ ] **[Nick]** Run `python main.py` — pipeline will attempt first scan. Check dashboard at http://localhost:8081.
+- [ ] **[Nick]** Confirm scanner logs show sold items being found (check `INFO eBay scanner: X sold items fetched`)
+- [ ] **[Nick]** Confirm Avasam/BigBuy source matching logs (check for `matched supplier product`)
+- [ ] **[Nick]** Confirm first eBay listing is created (check Active Listings panel in dashboard)
 
 ---
 
-## Stage 6 — Business Setup
-> Status: **Parallel — non-blocking, do alongside Stages 1–5**
+## Stage 3 — First live listing (v1.0.0-arb)
 
-- [x] **[Nick]** Proton Mail — shop.2026.uk@proton.me
-- [x] **[Nick]** Bitwarden account
-- [x] **[Nick]** Monzo Business Pro account — approved, funded with £10
-- [ ] **[Nick]** Register as sole trader with HMRC for Self Assessment — trigger: cumulative Etsy turnover reaches £800 (£1,000 allowance cliff, register before crossing it)
+- [ ] **[Nick]** First listing created and confirmed live in eBay Seller Hub
+- [ ] **[Claude]** Tag `v1.0.0-arb`
 
 ---
 
-## Business rules (operational constraints)
+## Stage 4 — Tune thresholds
 
-- **Relisting cost**: £0.25 per relist on Etsy. **Never auto-relist non-performing listings.** Let them expire. Create a fresh listing instead. The scheduler and any auto-renew logic must respect this.
+After first cycle completes, review:
+
+- [ ] **[Nick]** Check match rate — what % of scanned items find a supplier match? Target: ≥20%
+  - If low: increase `MATCH_THRESHOLD` leniency, or expand categories in `ebay_sold_scanner.py`
+- [ ] **[Nick]** Check margin filter — are good-margin items passing? Review `MIN_PROFIT_GBP` / `MIN_MARGIN_PCT` in `.env`
+- [ ] **[Nick]** Check `LISTINGS_PER_CYCLE` (default 5) — increase once first batch confirmed working
 
 ---
 
-## Affiliate Workstream
-> Status: **Active — concurrent with POD stages. Full plan in [AFFILIATE_PLAN.md](AFFILIATE_PLAN.md).**
-> Niche: Productivity & automation tools. Platform: GitHub Pages (`affiliate` branch). Content: AI-drafted, Nick reviews.
+## Stage 5 — Monitor + fulfilment live
 
-- [ ] **[Nick]** Sign up for Amazon Associates
+- [ ] **[Nick]** Wait for a paid eBay order to arrive
+- [ ] **[Nick]** Confirm order poller picks it up and submits to Avasam/BigBuy
+- [ ] **[Nick]** Confirm tracking number written back to eBay
+
+---
+
+## Stage 6 — Scale
+
+- [ ] Increase `LISTINGS_PER_CYCLE` to 20–50 once first batch confirmed profitable
+- [ ] Add Amazon PA API price benchmarking (once Associates approved)
+- [ ] Telegram alerts for new sales
+- [ ] Consider eBay Basic Shop (£19.99/mo) once ≥8 sales/month — reduces FVF ~9.9% vs 12.8%
+
+---
+
+## Affiliate workstream (separate `affiliate` branch — not started)
+
+- [ ] **[Nick]** Sign up for Amazon Associates UK (same account unlocks both PA API + affiliate)
 - [ ] **[Nick]** Sign up for ClickUp affiliate programme
 - [ ] **[Nick]** Sign up for Make (Integromat) affiliate programme
-- [ ] **[Claude]** Scaffold Jekyll site on `affiliate` branch — homepage, about, article template, disclosure
-- [ ] **[Nick]** Connect Google Search Console to github.io URL
-- [ ] **[Claude]** Draft first 3 articles — one roundup, one comparison, one how-to
+- [ ] **[Claude]** Scaffold Jekyll site on `affiliate` branch
+- [ ] **[Claude]** Draft first 3 articles
 
 ---
 
-## Backlog
-> Do not touch until v1.0.0 is tagged
+## Business rules
 
-- **[Claude]** Monitor garbled text in generated images — added `negative` URL parameter, explicit `model=flux`, random seeds, and tightened Gemini prompt. Review output from next pipeline run.
-- Telegram alerts for new listings / sales
-- A/B copy testing (multiple Gemini variants per keyword)
-- Bitwarden MCP server retry (previously failed to load in Claude Code)
-- Email notifications via Proton SMTP
+- eBay FVF: 12.8% + £0.30. Net = `sell_price × 0.872 − 0.30`
+- Min profit: £3.00 (`MIN_PROFIT_GBP`). Min margin: 25% (`MIN_MARGIN_PCT`).
+- End listing if margin drops below 15% (hardcoded in `arbitrage/monitor.py`)
+- Finding API call budget: 7 categories × 1 page = 7 calls/scan. Resets daily midnight PT.
+- `.env` is gitignored — never commit secrets. Single source for all credentials.
+- `pod` and `affiliate` branches never merge.
+
+---
+
+## Versioning
+
+| Tag | Milestone |
+|-----|-----------|
+| `v0.3.0` | Last POD milestone — Printful + eBay pipeline confirmed |
+| `v1.0.0-arb` | First live arbitrage listing (pending) |
+| `v1.x.0-arb` | Feature additions |
