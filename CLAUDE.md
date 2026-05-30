@@ -80,29 +80,29 @@ Dashboard: http://localhost:8081
 
 ---
 
-## Current status (session: 2026-05-27)
+## Current status (session: 2026-05-29)
 
 ### v0.3.0 COMPLETE ✓ — Last POD milestone
-### v1.0.0-arb IN PROGRESS — awaiting first live production scan
+### v1.0.0-arb BLOCKED — eBay Finding API decommissioned, scanner needs replacement
 
-### Completed this session (2026-05-27)
-- **Diagnosed eBay Finding API 500 errors** — was a rate limit (`errorId 10001`), not a parameter error. Parameters, App ID, and all 7 category IDs confirmed correct via sandbox.
-- **Fixed scanner error handling** — logs full response body on non-200; exits cleanly on rate limit instead of retrying
-- **Reduced scan volume** — default pages per category: 2 → 1 (7 API calls/scan instead of 14)
-- **eBay sandbox mode** — `EBAY_APP_ID_SANDBOX=NickCox-NickPrin-SBX-f4e87e45f-a1d1ef3e`, `EBAY_USE_SANDBOX=True/False` toggle in settings + `.env`
-- **Sandbox verified** — all 7 categories return HTTP 200, 0 results (expected — no real completed sales in sandbox)
-- **Supplier keys confirmed live** — `AVASAM_CONSUMER_KEY` + `AVASAM_SECRET_KEY` + `BIGBUY_API_KEY_PROD` all in `.env`
-- **PLAN.md rewritten** — replaced stale POD content with current arbitrage status and next actions
+### Completed this session (2026-05-29)
+- **Finding API confirmed DEAD** — `findCompletedItems` decommissioned 5 Feb 2025. `errorId 10001` is a gateway block, not a quota. Waiting will never fix it.
+- **Cost audit completed** — Avasam requires paid plan (£24.99+VAT/mo min) for API. BigBuy needs Pack Marketplaces (~£84/mo + €90 one-off). Monzo Pro £9/mo. **Manual check needed: confirm which are actively billing.**
+- **Strategic review** — full income landscape researched. New focus: crypto/prediction market arb sandbox. Automotive SaaS, AI video agency, B2B lead gen all backlogged.
+- **MCPs installed** (global `~/.claude/settings.json`) — `ccxt`, `funding-rates`, `prediction-markets`. Restart Claude Code to activate.
 
 ### Current state
-Bot running in sandbox mode. All code and API calls confirmed correct. Production rate limit resets **~08:00 BST 2026-05-28**.
+Arbitrage bot pipeline fully built. Only the scanner input is broken. Two viable fixes:
+- **Playwright MCP** — scrape Terapeak via eBay Seller Hub (free, no API cost)
+- **Apify `harvestlab/ebay-scraper`** — paid replacement, ~$0.003/item
 
-### Next action
-1. At/after 08:00 BST 2026-05-28: set `EBAY_USE_SANDBOX=False` in `.env`
-2. Run `python main.py`
-3. Watch for `INFO eBay scanner: X sold items fetched` — confirms production scan working
-4. Watch for supplier match + margin filter logs — confirms full pipeline working
-5. First listing created automatically — confirm in eBay Seller Hub → tag `v1.0.0-arb`
+New focus: practice crypto funding rate arb + prediction market arb in sandbox before touching capital.
+
+### Next actions
+1. **Manual** — check Avasam, BigBuy, Monzo dashboards. Confirm what is billing. Cancel anything not justified.
+2. **Restart Claude Code** — activates ccxt, funding-rates, prediction-markets MCPs.
+3. **Sandbox session** — explore CCXT MCP (Binance testnet) and prediction-markets MCP (Polymarket). Learn mechanics before deploying capital.
+4. **Scanner fix** — decide Playwright vs Apify once supplier billing picture is clear.
 
 ---
 

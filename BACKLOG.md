@@ -1,12 +1,15 @@
 # POD-and-Affiliate — Backlog
 
-_Last updated: 2026-05-27 (session 5)_
+_Last updated: 2026-05-29 (session 6)_
 
 ---
 
-## Immediate — before declaring v1.0.0-arb
+## Immediate — unblock arbitrage bot
 
-- [ ] **First production scan** — flip `EBAY_USE_SANDBOX=False`, run bot after 08:00 BST 2026-05-28, confirm `X sold items fetched` in logs
+- [ ] **Manual: check billing** — log into Avasam, BigBuy, Monzo. Confirm what is actively billing. Cancel/pause subscriptions not generating value. BigBuy: did you pay the €90 registration fee?
+- [ ] **Fix scanner** — Finding API (`findCompletedItems`) was decommissioned 5 Feb 2025. Choose fix:
+  - Option A: Playwright MCP scrapes Terapeak (eBay Seller Hub) — free, requires Playwright MCP installed
+  - Option B: Apify `harvestlab/ebay-scraper` — ~$0.003/item, direct drop-in replacement
 - [ ] **Verify Avasam source matching** — confirm auth token exchange works and at least one product is matched from inventory
 - [ ] **Verify BigBuy search** — confirm prod key works and returns products
 - [ ] **First eBay listing created** — check Seller Hub, confirm listing is live and margin logged in DB
@@ -90,6 +93,39 @@ _Last updated: 2026-05-27 (session 5)_
 | 2026-05-26 | BigBuy prod + test environments | Both keys in `.env`. `BIGBUY_USE_SANDBOX=False` for prod by default. |
 | 2026-05-27 | eBay Finding API rate limit is per-day | `findCompletedItems` quota exhausted from repeated test runs. Resets midnight PT (~08:00 BST). Use sandbox (`svcs.sandbox.ebay.com`) for dev testing. |
 | 2026-05-27 | Scanner pages reduced 2→1 per category | Halves daily API call budget (14→7 per full scan). Sandbox confirmed all 7 category IDs valid. |
+| 2026-05-29 | eBay Finding API confirmed decommissioned | `findCompletedItems` shut down 5 Feb 2025. errorId 10001 is a gateway block, not a quota. Playwright MCP or Apify scraper required as replacement. |
+| 2026-05-29 | New income focus: crypto/prediction market arb sandbox | eBay arbitrage stalled on scanner fix + supplier billing uncertainty. Sandbox crypto funding rate arb and prediction market arb while arbitrage bot is unblocked. No capital deployed until mechanics proven. |
+| 2026-05-29 | MCPs installed: ccxt, funding-rates, prediction-markets | Global `~/.claude/settings.json`. CCXT uses `@mcpfun/mcp-server-ccxt`. Funding rates via `uvx funding-rates-mcp`. Prediction markets via `npx prediction-markets-mcp`. Require Claude Code restart. |
+| 2026-05-29 | Automotive SaaS backlogged | Strong domain advantage (30yr technical) but direction unclear. Parked until focused thinking session. |
+
+---
+
+## Income diversification backlog (parked — revisit after arbitrage bot generating revenue)
+
+### Active focus (sandbox first, no capital)
+- [ ] **Crypto funding rate arb** — explore via `funding-rates` MCP + CCXT MCP. Binance testnet. Delta-neutral (spot long + perp short). Understand mechanics before deploying any capital.
+- [ ] **Prediction market arb** — explore via `prediction-markets` MCP (Polymarket/Kalshi). Identify cross-platform pricing discrepancies. Paper trade first.
+- [ ] **CCXT MCP sandbox** — connect to Binance testnet, run market data queries, understand order placement API before live trading.
+
+### Backlogged income ideas
+- [ ] **AI video agency (Higgsfield)** — highest ceiling (£400/day with 8 clients), but client acquisition is the bottleneck. Revisit when capacity exists.
+- [ ] **B2B lead generation** — automated LinkedIn/contact enrichment service. Parked: GDPR complexity and commoditisation risk.
+- [ ] **Automotive SaaS** — building a tool/SaaS for dealers, workshops, or OEMs. Strong domain advantage (30yr automotive technical). Direction TBD — revisit with fresh thinking.
+- [ ] **Affiliate site** — EV/automotive niche on `affiliate` branch. Expert-led, author-attributed content. 12+ month horizon.
+- [ ] **Sell the arbitrage bot** — package on Lemon Squeezy (£149–£249). Once bot is proven working, document and list. Low effort, recovers dev investment.
+- [ ] **Adobe Stock AI video** — batch Higgsfield clips to Adobe Stock. Side stream. Low effort once pipeline built.
+- [ ] **Freqtrade bot** — Python crypto bot on Bybit. 2–3 year compounding horizon. Set up after funding rate arb is understood.
+
+### MCPs to install when needed
+- Playwright MCP (`@playwright/mcp`) — fixes eBay scanner via Terapeak scraping
+- Apify MCP (`@apify/actors-mcp-server`) — needs `APIFY_TOKEN`
+- Alpha Vantage MCP — needs free API key
+- FRED economic data MCP — needs free API key
+- Alpaca MCP — needs brokerage account
+- eBay MCP (325 tools) — needs eBay credentials
+- Firecrawl MCP — needs free API key
+- Freqtrade MCP — needs running Freqtrade instance
+- Prediction market execution (PMXT) — needs Kalshi/Polymarket account
 
 ---
 
