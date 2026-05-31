@@ -13,7 +13,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc
 
 from database.db import get_db
-from database.models import ScannedItem, ArbitrageOpportunity, ActiveListing, FulfillmentOrder
+import json, os
+from database.models import ScannedItem, ArbitrageOpportunity, ActiveListing, FulfillmentOrder, FundingRateSnapshot, FundingPosition, DigitalListing
 
 router = APIRouter()
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
@@ -103,6 +104,31 @@ async def dashboard(request: Request, db: AsyncSession = Depends(get_db)):
         .group_by(ActiveListing.supplier)
     )).all()
 
+    # Stream A: Etsy digital downloads
+    digital_active = (await db.execute(
+        select(func.count(DigitalListing.id)).where(DigitalListing.status == "active")
+    )).scalar() or 0
+
+    digital_total = (await db.execute(
+        select(func.count(DigitalListing.id))
+    )).scalar() or 0
+
+    recent_digital = (await db.execute(
+        select(DigitalListing).order_by(desc(DigitalListing.created_at)).limit(10)
+    )).scalars().all()
+
+    # Stream B: Affiliate articles
+    keyword_queue_path = os.path.join("data", "affiliate_keywords.json")
+    articles_published = 0
+    articles_pending = 0
+    if os.path.exists(keyword_queue_path):
+        with open(keyword_queue_path) as f:
+            kq = json.load(f)
+        articles_published = len(kq.get("published", []))
+        articles_pending = len(kq.get("pending", []))
+
+    # Crypto parked — removed from dashboard
+
     return templates.TemplateResponse(
         request=request,
         name="index.html",
@@ -133,6 +159,43 @@ async def dashboard(request: Request, db: AsyncSession = Depends(get_db)):
             ],
             "last_scan": last_scan.strftime("%d/%m/%Y %H:%M") if last_scan else None,
             "last_listed": last_listed.strftime("%d/%m/%Y %H:%M") if last_listed else None,
+            "funding_rates": [
+                {
+                    "symbol": r.symbol,
+                    "annualised_pct": f"{r.annualised_pct:.1f}%",
+                    "rate": f"{r.rate:.6f}",
+                    "recorded_at": r.recorded_at.strftime("%H:%M"),
+                }
+                for r in latest_rates
+            ],
+            "open_positions": [
+                {
+                    "symbol": p.symbol,
+                    "size_usdt": f"${p.size_usdt:.0f}",
+                    "entry_rate": f"{p.entry_rate:.4f}",
+                    "funding_collected": f"${p.funding_collected:.4f}",
+                    "opened_at": p.opened_at.strftime("%d/%m %H:%M"),
+                }
+                for p in open_positions
+            ],
+            "total_funding_collected": f"${total_funding_collected:.4f}",
+            # Stream A
+            "digital_active": digital_active,
+            "digital_total": digital_total,
+            "recent_digital": [
+                {
+                    "etsy_listing_id": d.etsy_listing_id,
+                    "title": d.title,
+                    "theme": d.theme,
+                    "price_gbp": d.price_gbp,
+                    "files_uploaded": d.files_uploaded,
+                    "created_at": d.created_at.strftime("%d/%m %H:%M"),
+                }
+                for d in recent_digital
+            ],
+            # Stream B
+            "articles_published": articles_published,
+            "articles_pending": articles_pending,
         },
     )
 

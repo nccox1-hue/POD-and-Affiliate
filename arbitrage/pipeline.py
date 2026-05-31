@@ -61,10 +61,9 @@ class ArbitragePipeline:
         await self._save_scanned_items(sold_items[:scan_target])
 
         # Skip listing creation if no supplier keys are configured
-        if not settings.avasam_api_key and not settings.bigbuy_api_key:
+        if not settings.avasam_consumer_key and not settings.bigbuy_api_key_prod:
             logger.info(
-                "Arbitrage pipeline: no supplier keys set — %d scanned items saved, no listings created. "
-                "Add AVASAM_API_KEY or BIGBUY_API_KEY to .env to enable listing creation.",
+                "Arbitrage pipeline: no supplier keys set — %d scanned items saved, no listings created.",
                 len(sold_items[:scan_target]),
             )
             return 0

@@ -85,6 +85,60 @@ class FulfillmentOrder(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
+# ── Stream A: Etsy Digital Downloads ─────────────────────────────────────────
+
+class DigitalListing(Base):
+    """An Etsy digital download listing created by the bot."""
+    __tablename__ = "digital_listings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    etsy_listing_id = Column(String(50), unique=True, index=True)
+    title = Column(String(200))
+    theme = Column(String(50))
+    price_gbp = Column(Float)
+    files_uploaded = Column(Integer, default=0)
+    status = Column(String(20), default="active")   # active | ended
+    views = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    last_checked_at = Column(DateTime, nullable=True)
+
+
+# ── Stream D: Crypto Funding Rate Arbitrage ──────────────────────────────────
+
+class FundingRateSnapshot(Base):
+    """Hourly snapshot of funding rates across exchanges and symbols."""
+    __tablename__ = "funding_rate_snapshots"
+
+    id = Column(Integer, primary_key=True, index=True)
+    exchange = Column(String(20))           # bybit | binance
+    symbol = Column(String(30))             # BTC/USDT:USDT
+    rate = Column(Float)                    # raw rate e.g. 0.0001
+    annualised_pct = Column(Float)          # rate * 3 * 365 * 100
+    next_funding_ts = Column(Integer, nullable=True)
+    recorded_at = Column(DateTime, default=datetime.utcnow)
+
+
+class FundingPosition(Base):
+    """An open delta-neutral funding rate position (spot long + perp short)."""
+    __tablename__ = "funding_positions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    exchange = Column(String(20))
+    symbol = Column(String(30))             # base asset e.g. BTC/USDT:USDT
+    spot_symbol = Column(String(30))        # e.g. BTC/USDT
+    size_usdt = Column(Float)               # position size in USDT
+    entry_rate = Column(Float)              # funding rate at entry
+    spot_order_id = Column(String(100), default="")
+    perp_order_id = Column(String(100), default="")
+    spot_entry_price = Column(Float, default=0.0)
+    perp_entry_price = Column(Float, default=0.0)
+    funding_collected = Column(Float, default=0.0)  # cumulative USDT collected
+    status = Column(String(20), default="open")     # open | closed | error
+    opened_at = Column(DateTime, default=datetime.utcnow)
+    closed_at = Column(DateTime, nullable=True)
+    close_reason = Column(String(100), default="")
+
+
 # ── Kept for backwards compatibility with existing DB rows ────────────────────
 # These tables are no longer written to by the active pipeline.
 

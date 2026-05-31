@@ -1,83 +1,134 @@
 """
-eBay Finding API scanner.
-Uses findCompletedItems to fetch recently sold fixed-price listings.
-Groups results by normalised title to estimate sell frequency.
-Returns ScannedItem dicts ready for the source matcher.
+eBay sold listings scanner — Playwright-based replacement for the decommissioned Finding API.
+Uses keyword searches on eBay UK sold/completed listings.
+Returns the same ScannedItem dict format as the original API-based scanner.
 """
-import logging
 import asyncio
-from datetime import datetime, timedelta, timezone
-from typing import Dict, List, Optional
-from urllib.parse import urlencode
+import logging
+import re
+from typing import Dict, List
 
-import httpx
+from playwright.async_api import async_playwright, BrowserContext
 
 from config.settings import settings
 
 logger = logging.getLogger(__name__)
 
-FINDING_API_PROD    = "https://svcs.ebay.com/services/search/FindingService/v1"
-FINDING_API_SANDBOX = "https://svcs.sandbox.ebay.com/services/search/FindingService/v1"
-
-# eBay UK category IDs — Avasam/BigBuy catalogue focus areas
-TARGET_CATEGORIES: List[tuple] = [
-    ("11700", "Home & Garden"),
-    ("26395", "Garden & Patio"),
-    ("1281",  "Pet Supplies"),
-    ("631",   "Tools & Workshop"),
-    ("220",   "Toys & Games"),
-    ("14308", "Baby"),
-    ("11232", "Sporting Goods"),
+# Keyword search terms mapped to category metadata.
+# Multiple terms per category increases coverage; deduplication handles overlaps.
+SEARCH_TARGETS: List[Dict] = [
+    {"keywords": ["home storage organisation", "kitchen gadgets", "bathroom accessories"],
+     "category_id": "11700", "category_name": "Home & Garden"},
+    {"keywords": ["garden tools outdoor", "plant pots garden decor"],
+     "category_id": "26395", "category_name": "Garden & Patio"},
+    {"keywords": ["dog accessories pet", "cat supplies pet toys"],
+     "category_id": "1281",  "category_name": "Pet Supplies"},
+    {"keywords": ["hand tools diy", "power tool accessories"],
+     "category_id": "631",   "category_name": "Tools & Workshop"},
+    {"keywords": ["children toys games", "kids outdoor toys"],
+     "category_id": "220",   "category_name": "Toys & Games"},
+    {"keywords": ["baby clothes accessories", "nursery baby gear"],
+     "category_id": "14308", "category_name": "Baby"},
+    {"keywords": ["fitness equipment gym", "sports outdoor activity"],
+     "category_id": "11232", "category_name": "Sporting Goods"},
 ]
+
+_USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/124.0.0.0 Safari/537.36"
+)
+
+
+def _parse_price(text: str) -> float:
+    """Extract the first numeric value from strings like '£12.99' or '£8.00 to £20.00'."""
+    matches = re.findall(r"\d+\.?\d*", text.replace(",", ""))
+    return float(matches[0]) if matches else 0.0
+
+
+def _normalise_title(title: str) -> str:
+    """Reduce title to a dedup key — lowercase, drop filler words, sort remainder."""
+    stop = {"for", "the", "a", "an", "with", "and", "or", "in", "on", "of", "to", "new", "uk"}
+    words = [w for w in title.lower().split() if w.isalpha() and w not in stop]
+    return " ".join(sorted(words[:8]))
+
+
+def _search_url(keyword: str) -> str:
+    kw = keyword.replace(" ", "+")
+    return (
+        f"https://www.ebay.co.uk/sch/i.html?_nkw={kw}"
+        f"&LH_Complete=1&LH_Sold=1"
+        f"&LH_BIN=1"
+        f"&LH_PrefLoc=1"
+        f"&_udlo={int(settings.min_ebay_price)}"
+        f"&_udhi={int(settings.max_ebay_price)}"
+        f"&_ipg=240"
+        f"&_sop=13"
+    )
+
+
+async def _scrape_keyword(page, keyword: str, category_id: str, category_name: str) -> List[Dict]:
+    """Scrape one keyword search and return item dicts."""
+    items = []
+    url = _search_url(keyword)
+    try:
+        await page.goto(url, wait_until="domcontentloaded", timeout=30_000)
+        await asyncio.sleep(2.5)
+
+        cards = await page.query_selector_all("li.s-card")
+        for card in cards:
+            try:
+                title_el = await card.query_selector(".s-card__title")
+                if not title_el:
+                    continue
+                title = (await title_el.inner_text()).strip()
+                if not title or "shop on ebay" in title.lower():
+                    continue
+
+                price_el = await card.query_selector(".s-card__price")
+                price = _parse_price(await price_el.inner_text() if price_el else "")
+                if price < settings.min_ebay_price or price > settings.max_ebay_price:
+                    continue
+
+                item_id = await card.get_attribute("data-listingid") or ""
+
+                img_el = await card.query_selector("img")
+                image_url = ""
+                if img_el:
+                    image_url = (
+                        await img_el.get_attribute("src") or
+                        await img_el.get_attribute("data-src") or ""
+                    )
+                    # Skip eBay placeholder/logo images
+                    if "ebaystatic" in image_url:
+                        image_url = ""
+
+                items.append({
+                    "ebay_item_id": item_id,
+                    "title": title,
+                    "category_id": category_id,
+                    "category_name": category_name,
+                    "sold_price": price,
+                    "image_url": image_url,
+                })
+
+            except Exception as e:
+                logger.debug("Scanner: skipping card: %s", e)
+
+        logger.info(
+            "eBay scanner: '%s' — %d sold items fetched", keyword, len(items)
+        )
+    except Exception as e:
+        logger.error("eBay scanner: error on '%s': %s", keyword, e)
+
+    return items
 
 
 class EbaySoldScanner:
-    def __init__(self):
-        if settings.ebay_use_sandbox:
-            self._app_id = settings.ebay_app_id_sandbox
-            self._api_url = FINDING_API_SANDBOX
-            logger.info("eBay scanner: using SANDBOX environment")
-        else:
-            self._app_id = settings.ebay_app_id
-            self._api_url = FINDING_API_PROD
-
-    def _build_params(
-        self,
-        category_id: str,
-        min_price: float,
-        max_price: float,
-        days_back: int,
-        page: int = 1,
-    ) -> Dict[str, str]:
-        from_dt = (
-            datetime.now(timezone.utc) - timedelta(days=days_back)
-        ).strftime("%Y-%m-%dT%H:%M:%S.000Z")
-
-        return {
-            "OPERATION-NAME": "findCompletedItems",
-            "SERVICE-VERSION": "1.13.0",
-            "SECURITY-APPNAME": self._app_id,
-            "RESPONSE-DATA-FORMAT": "JSON",
-            "GLOBAL-ID": "EBAY-GB",
-            "categoryId": category_id,
-            "itemFilter(0).name": "SoldItemsOnly",
-            "itemFilter(0).value": "true",
-            "itemFilter(1).name": "MinPrice",
-            "itemFilter(1).value": str(min_price),
-            "itemFilter(1).paramName": "Currency",
-            "itemFilter(1).paramValue": "GBP",
-            "itemFilter(2).name": "MaxPrice",
-            "itemFilter(2).value": str(max_price),
-            "itemFilter(2).paramName": "Currency",
-            "itemFilter(2).paramValue": "GBP",
-            "itemFilter(3).name": "ListingType",
-            "itemFilter(3).value": "FixedPrice",
-            "itemFilter(4).name": "EndTimeFrom",
-            "itemFilter(4).value": from_dt,
-            "sortOrder": "BestMatch",
-            "paginationInput.entriesPerPage": "100",
-            "paginationInput.pageNumber": str(page),
-        }
+    """
+    Drop-in replacement for the original Finding API scanner.
+    Public interface (scan_category / scan_all) and return format are identical.
+    """
 
     async def scan_category(
         self,
@@ -85,114 +136,67 @@ class EbaySoldScanner:
         category_name: str,
         days_back: int = 7,
         pages: int = 1,
+        _page=None,
     ) -> List[Dict]:
-        """
-        Fetch sold listings for one category.
-        Returns a list of raw item dicts.
-        """
-        if not self._app_id:
-            logger.warning("eBay scanner: no EBAY_APP_ID configured")
-            return []
-
+        """Scan one category's keywords. _page is an optional shared Playwright page."""
+        target = next(
+            (t for t in SEARCH_TARGETS if t["category_id"] == category_id),
+            {"keywords": [category_name.lower()], "category_id": category_id, "category_name": category_name}
+        )
         items = []
-        for page in range(1, pages + 1):
-            params = self._build_params(
-                category_id,
-                settings.min_ebay_price,
-                settings.max_ebay_price,
-                days_back,
-                page,
-            )
-            url = f"{self._api_url}?{urlencode(params)}"
-            try:
-                async with httpx.AsyncClient(timeout=20) as client:
-                    resp = await client.get(url)
-                if resp.status_code != 200:
-                    body = resp.text[:500]
-                    # errorId 10001 = rate limit exceeded — stop all scanning immediately
-                    if "10001" in body:
-                        logger.warning(
-                            "eBay scanner: daily rate limit hit — stopping scan. Resets midnight PT (~07:00 UTC). Body: %s",
-                            body,
-                        )
-                        return items
-                    logger.error(
-                        "eBay scanner: HTTP %s for category %s page %d — body: %s",
-                        resp.status_code, category_name, page, body,
-                    )
-                    break
-                data = resp.json()
-            except Exception as exc:
-                logger.error("eBay scanner: API error for category %s page %d: %s", category_name, page, exc)
-                break
-
-            try:
-                search_result = (
-                    data.get("findCompletedItemsResponse", [{}])[0]
-                       .get("searchResult", [{}])[0]
-                )
-                raw_items = search_result.get("item", [])
-            except (IndexError, KeyError):
-                logger.warning("eBay scanner: unexpected response shape for %s", category_name)
-                break
-
-            if not raw_items:
-                break
-
-            for raw in raw_items:
-                try:
-                    selling = raw.get("sellingStatus", [{}])[0]
-                    state = selling.get("sellingState", [""])[0]
-                    if state != "EndedWithSales":
-                        continue
-
-                    price_info = selling.get("currentPrice", [{}])[0]
-                    price = float(price_info.get("__value__", 0))
-                    if price <= 0:
-                        continue
-
-                    item = {
-                        "ebay_item_id": raw.get("itemId", [""])[0],
-                        "title": raw.get("title", [""])[0],
-                        "category_id": category_id,
-                        "category_name": category_name,
-                        "sold_price": price,
-                        "image_url": raw.get("galleryURL", [""])[0],
-                    }
-                    if item["title"]:
-                        items.append(item)
-                except Exception as e:
-                    logger.debug("eBay scanner: skipping malformed item: %s", e)
-
-            logger.info(
-                "eBay scanner: %s page %d — %d sold items fetched",
-                category_name, page, len(raw_items),
-            )
-            await asyncio.sleep(0.5)  # stay within Finding API rate limits
-
+        for kw in target["keywords"]:
+            kw_items = await _scrape_keyword(_page, kw, category_id, category_name)
+            items.extend(kw_items)
+            await asyncio.sleep(2.0)
         return items
 
     async def scan_all(self, days_back: int = 7) -> List[Dict]:
         """
-        Scan all TARGET_CATEGORIES and return deduplicated, frequency-ranked items.
-        Items appearing in multiple listings get a higher sold_count.
-        Filters to min_sold_count threshold from settings.
+        Scan all SEARCH_TARGETS. Returns deduplicated, frequency-ranked items.
+        Identical return format to the original Finding API scanner.
         """
         all_items: List[Dict] = []
-        for cat_id, cat_name in TARGET_CATEGORIES:
-            cat_items = await self.scan_category(cat_id, cat_name, days_back=days_back)
-            all_items.extend(cat_items)
-            await asyncio.sleep(1)
 
-        logger.info("eBay scanner: %d raw sold items across %d categories", len(all_items), len(TARGET_CATEGORIES))
+        async with async_playwright() as pw:
+            browser = await pw.chromium.launch(headless=True)
+            ctx = await browser.new_context(
+                user_agent=_USER_AGENT,
+                viewport={"width": 1280, "height": 900},
+                locale="en-GB",
+                timezone_id="Europe/London",
+            )
+            # Block fonts and media — speeds up loading without losing item data
+            await ctx.route(
+                "**/*.{woff,woff2,ttf,otf,mp4,webm}",
+                lambda route: route.abort()
+            )
+            page = await ctx.new_page()
 
-        # Deduplicate by normalised title — count occurrences as sell proxy
+            # Prime cookies via homepage — prevents error pages on first search
+            await page.goto("https://www.ebay.co.uk", wait_until="domcontentloaded", timeout=30_000)
+            await asyncio.sleep(1.5)
+
+            for target in SEARCH_TARGETS:
+                for kw in target["keywords"]:
+                    kw_items = await _scrape_keyword(
+                        page, kw, target["category_id"], target["category_name"]
+                    )
+                    all_items.extend(kw_items)
+                    await asyncio.sleep(3.0)  # polite gap between searches
+
+            await browser.close()
+
+        logger.info(
+            "eBay scanner: %d raw sold items across %d search terms",
+            len(all_items), sum(len(t["keywords"]) for t in SEARCH_TARGETS),
+        )
+
+        # Deduplicate by normalised title — identical logic to original scanner
         seen: Dict[str, Dict] = {}
         for item in all_items:
             key = _normalise_title(item["title"])
             if key in seen:
                 seen[key]["sold_count"] += 1
-                # Keep the highest-priced sold instance as reference price
                 if item["sold_price"] > seen[key]["sold_price"]:
                     seen[key]["sold_price"] = item["sold_price"]
                     seen[key]["image_url"] = item["image_url"]
@@ -201,10 +205,7 @@ class EbaySoldScanner:
                 seen[key] = item
 
         deduped = list(seen.values())
-
-        # Apply min_sold_count filter
         filtered = [i for i in deduped if i["sold_count"] >= settings.min_sold_count]
-        # Sort by sold_count descending (strongest signal first)
         filtered.sort(key=lambda x: x["sold_count"], reverse=True)
 
         logger.info(
@@ -212,10 +213,3 @@ class EbaySoldScanner:
             len(deduped), len(filtered), settings.min_sold_count,
         )
         return filtered
-
-
-def _normalise_title(title: str) -> str:
-    """Reduce a listing title to a comparable key — lowercase, drop common filler words."""
-    stop = {"for", "the", "a", "an", "with", "and", "or", "in", "on", "of", "to", "new", "uk"}
-    words = [w for w in title.lower().split() if w.isalpha() and w not in stop]
-    return " ".join(sorted(words[:8]))  # sort so word-order variations match

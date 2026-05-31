@@ -263,6 +263,68 @@
     </div>
   </section>
 
+  <!-- Stream A: Etsy Digital Downloads + Stream B: Affiliate -->
+  <section class="mid-grid">
+
+    <div class="card">
+      <div class="card-title">
+        Stream A — Etsy Digital Downloads
+        <span style="float:right;color:var(--muted);font-size:.75rem">{{ digital_total }} created</span>
+      </div>
+      <div class="stats-grid" style="grid-template-columns:1fr 1fr;margin-bottom:.9rem">
+        <div class="stat-card">
+          <div class="stat-label">Active Listings</div>
+          <div class="stat-value c-green">{{ digital_active }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Created</div>
+          <div class="stat-value c-blue">{{ digital_total }}</div>
+        </div>
+      </div>
+      {% if recent_digital %}
+      <div class="overflow-table">
+        <table>
+          <thead><tr><th>Theme</th><th>Title</th><th>Price</th><th>Files</th><th>Created</th></tr></thead>
+          <tbody>
+          {% for d in recent_digital %}
+            <tr>
+              <td><span class="pill active">{{ d.theme }}</span></td>
+              <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.78rem;color:var(--muted)">{{ d.title }}</td>
+              <td style="white-space:nowrap;color:var(--green)">£{{ "%.2f"|format(d.price_gbp) }}</td>
+              <td style="color:var(--muted)">{{ d.files_uploaded }}</td>
+              <td style="color:var(--muted);font-size:.75rem">{{ d.created_at }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <div class="empty">No digital listings yet — pipeline runs every 56h</div>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <div class="card-title">Stream B — Affiliate Site (Automation/Excel)</div>
+      <div class="stats-grid" style="grid-template-columns:1fr 1fr;margin-bottom:.9rem">
+        <div class="stat-card">
+          <div class="stat-label">Articles Published</div>
+          <div class="stat-value c-green">{{ articles_published }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Keywords Queued</div>
+          <div class="stat-value c-blue">{{ articles_pending }}</div>
+        </div>
+      </div>
+      <div style="color:var(--muted);font-size:.82rem;line-height:1.6">
+        <div>Site: <a href="https://nccox1-hue.github.io/POD-and-Affiliate/" target="_blank">nccox1-hue.github.io/POD-and-Affiliate ↗</a></div>
+        <div style="margin-top:.4rem">Publishes 1 article every 56h automatically.</div>
+        <div style="margin-top:.4rem">Revenue tracked via Amazon Associates, Rakuten, PartnerStack dashboards (external).</div>
+      </div>
+    </div>
+
+  </section>
+
+
 </div>
 
 <footer>

@@ -5,6 +5,14 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     gemini_api_key: str = ""
 
+    etsy_api_key: str = ""
+    etsy_api_secret: str = ""
+    etsy_access_token: str = ""
+    etsy_refresh_token: str = ""
+    etsy_shop_id: str = ""
+    etsy_shipping_profile_id: str = ""
+    etsy_return_policy_id: str = ""
+
     ebay_app_id: str = ""
     ebay_app_id_sandbox: str = ""
     ebay_use_sandbox: bool = False
@@ -41,6 +49,13 @@ class Settings(BaseSettings):
     database_url: str = "sqlite+aiosqlite:///./data/pod_bot.db"
     scan_interval_hours: int = 24
     listings_per_cycle: int = 5
+
+    # Bybit — funding rate arbitrage (Stream D)
+    bybit_testnet_api_key: str = ""
+    bybit_testnet_api_secret: str = ""
+    bybit_testnet: bool = False
+    bybit_api_key: str = ""
+    bybit_api_secret: str = ""
 
     owner_email: str = ""
     owner_email_password: str = ""

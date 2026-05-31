@@ -19,6 +19,7 @@ database/
 logs/
 
 # IDE / tools
+.claude/settings.json
 .claude/settings.local.json
 .vscode/
 .idea/
@@ -26,3 +27,8 @@ logs/
 # OS
 Thumbs.db
 .DS_Store
+
+# Temp files
+*pm-stderr*
+*pm-stdout*
+C*UsersnickcAppData*

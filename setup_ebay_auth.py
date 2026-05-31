@@ -8,12 +8,14 @@ import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlencode, urlparse, parse_qs
 
+import os
 import httpx
-from dotenv import set_key
+from dotenv import load_dotenv, set_key
 
-APP_ID  = "EBAY_APP_ID_PLACEHOLDER"
-CERT_ID = "EBAY_CERT_ID_PLACEHOLDER"
-RUNAME  = "Nick_Cox-NickCox-NickPri-bzvqjfl"
+load_dotenv()
+APP_ID  = os.getenv("EBAY_APP_ID", "")
+CERT_ID = os.getenv("EBAY_CERT_ID", "")
+RUNAME  = os.getenv("EBAY_RUNAME", "Nick_Cox-NickCox-NickPri-bzvqjfl")
 PORT    = 8080
 
 SCOPES = " ".join([

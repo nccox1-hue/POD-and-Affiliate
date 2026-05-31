@@ -7,6 +7,25 @@ Project context for Claude Code sessions. Keep this updated at the end of each s
 
 ---
 
+## Financial stress-test rule — MANDATORY before building any revenue stream
+
+**Never propose, build, or deploy a revenue stream without completing this analysis first. No exceptions.**
+
+Before any new stream is discussed or built, explicitly state:
+
+1. **The maths** — show actual numbers at low/mid/high scenarios. Not headlines. E.g. "at 5% sell-through on 150 listings × £5 profit = £37.50/month". Show the working.
+2. **Capital required** — what real money is at risk, including monthly costs.
+3. **Time to first revenue** — realistic (not optimistic). State the assumption.
+4. **Time to £200/month target** — the minimum income bar for any stream in this project.
+5. **Worst case** — what is the maximum possible loss? State it plainly before recommending.
+6. **Risk/reward verdict** — does this actually make sense given the goal? If not, say so before building.
+
+**Why this rule exists:** Crypto funding rate arb was proposed, built, and deployed before the numbers were stress-tested against the £200/month goal. It doesn't meet the goal without £15,000+ capital and carries exchange insolvency risk. This should have been identified before a line of code was written. The physical POD stream was similarly built before confirming demand signal viability. Two streams parked after build = wasted sessions.
+
+**The standard is:** if you cannot show a credible path to £200/month with acceptable risk BEFORE building, do not build it. Raise the concern first, get agreement, then build.
+
+---
+
 ## Project overview
 
 **Pivoted to eBay Arbitrage Bot (session 2026-05-26).** The POD pipeline is fully replaced.
@@ -80,29 +99,36 @@ Dashboard: http://localhost:8081
 
 ---
 
-## Current status (session: 2026-05-29)
+## Current status (session: 2026-05-30)
 
 ### v0.3.0 COMPLETE ✓ — Last POD milestone
 ### v1.0.0-arb BLOCKED — eBay Finding API decommissioned, scanner needs replacement
 
-### Completed this session (2026-05-29)
-- **Finding API confirmed DEAD** — `findCompletedItems` decommissioned 5 Feb 2025. `errorId 10001` is a gateway block, not a quota. Waiting will never fix it.
-- **Cost audit completed** — Avasam requires paid plan (£24.99+VAT/mo min) for API. BigBuy needs Pack Marketplaces (~£84/mo + €90 one-off). Monzo Pro £9/mo. **Manual check needed: confirm which are actively billing.**
-- **Strategic review** — full income landscape researched. New focus: crypto/prediction market arb sandbox. Automotive SaaS, AI video agency, B2B lead gen all backlogged.
-- **MCPs installed** (global `~/.claude/settings.json`) — `ccxt`, `funding-rates`, `prediction-markets`. Restart Claude Code to activate.
+### MCP status (diagnosed 2026-05-30)
+Three MCPs configured in `~/.claude/settings.json`: `ccxt`, `funding-rates`, `prediction-markets`.
+
+- **ccxt** (`@mcpfun/mcp-server-ccxt`) — starts correctly. Should work after restart.
+- **funding-rates** (`funding-rates-mcp` via uvx) — crashes on startup with `fatal: bad revision 'HEAD'`. Needs fix.
+- **prediction-markets** (`prediction-markets-mcp` via npx) — silent failure. Needs investigation.
+
+These are local process MCPs (not cloud-hosted). They only work via Claude Code, not claude.ai web.
+
+**After restart:** if ccxt still doesn't appear, the MCP protocol handshake may be failing. Investigate Claude Code output panel for errors.
+
+### Completed (2026-05-29)
+- Finding API confirmed dead (`findCompletedItems` decommissioned 5 Feb 2025)
+- Cost audit completed — Avasam £24.99+VAT/mo, BigBuy ~£84/mo + €90 one-off, Monzo Pro £9/mo
+- Strategic pivot to crypto/prediction market arb sandbox
+- MCPs installed in global settings
 
 ### Current state
-Arbitrage bot pipeline fully built. Only the scanner input is broken. Two viable fixes:
-- **Playwright MCP** — scrape Terapeak via eBay Seller Hub (free, no API cost)
-- **Apify `harvestlab/ebay-scraper`** — paid replacement, ~$0.003/item
-
-New focus: practice crypto funding rate arb + prediction market arb in sandbox before touching capital.
+Arbitrage bot pipeline fully built. Scanner input broken (Finding API dead). New focus: sandbox crypto funding rate arb + prediction market arb.
 
 ### Next actions
-1. **Manual** — check Avasam, BigBuy, Monzo dashboards. Confirm what is billing. Cancel anything not justified.
-2. **Restart Claude Code** — activates ccxt, funding-rates, prediction-markets MCPs.
-3. **Sandbox session** — explore CCXT MCP (Binance testnet) and prediction-markets MCP (Polymarket). Learn mechanics before deploying capital.
-4. **Scanner fix** — decide Playwright vs Apify once supplier billing picture is clear.
+1. **After restart** — check which MCPs loaded. Fix `funding-rates` crash and `prediction-markets` silence.
+2. **If ccxt loads** — explore CCXT MCP: fetch funding rates, spot vs perp spreads on Binance testnet.
+3. **Manual** — check Avasam, BigBuy, Monzo dashboards. Cancel anything not justified.
+4. **Scanner fix** — Playwright vs Apify decision (lower priority until supplier billing clear).
 
 ---
 
