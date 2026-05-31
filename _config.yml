@@ -1,0 +1,22 @@
+title: AutomateWork
+description: Practical guides for Excel, Power Automate, Power BI and business automation tools. Save hours every week with step-by-step tutorials written for real office workflows.
+url: "https://nccox1-hue.github.io"
+baseurl: "/POD-and-Affiliate"
+author: Nick Cox
+
+theme: minima
+
+minima:
+  skin: classic
+
+header_pages:
+  - about.md
+  - privacy.md
+
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+
+google_analytics: ""
+
+affiliate_disclosure: "This site contains affiliate links. If you purchase through these links I may earn a small commission at no extra cost to you."
