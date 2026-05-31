@@ -99,36 +99,58 @@ Dashboard: http://localhost:8081
 
 ---
 
-## Current status (session: 2026-05-30)
+## Current status (session: 2026-05-31)
 
-### v0.3.0 COMPLETE ✓ — Last POD milestone
-### v1.0.0-arb BLOCKED — eBay Finding API decommissioned, scanner needs replacement
+### Active revenue streams (all running — bot started with `python main.py`)
 
-### MCP status (diagnosed 2026-05-30)
-Three MCPs configured in `~/.claude/settings.json`: `ccxt`, `funding-rates`, `prediction-markets`.
+**Stream A1 — Etsy Digital Wall Art** ✅ LIVE
+- 3 listings published and live on Etsy Seller Hub (confirmed this session)
+- Pipeline: Etsy bestseller scanner → Pollinations.ai artwork → digital listing publisher
+- Runs every 56h, 3 listings/cycle at £2.49 each
+- Key fixes applied: `type:"download"` (not `is_digital`), `when_made:"2020_2026"`, auto token refresh on 401
 
-- **ccxt** (`@mcpfun/mcp-server-ccxt`) — starts correctly. Should work after restart.
-- **funding-rates** (`funding-rates-mcp` via uvx) — crashes on startup with `fatal: bad revision 'HEAD'`. Needs fix.
-- **prediction-markets** (`prediction-markets-mcp` via npx) — silent failure. Needs investigation.
+**Stream A2 — Etsy Excel Templates** ⚠️ BUILT, NOT YET CONFIRMED
+- `pod_digital/template_generator.py` (openpyxl) — budget tracker, project tracker generated
+- `pod_digital/template_pipeline.py` — publishes on 48h schedule at £10-£30
+- Template listing creation still failing (separate issue — needs debug next session)
 
-These are local process MCPs (not cloud-hosted). They only work via Claude Code, not claude.ai web.
+**Stream B — Affiliate Site (Automation/Excel)** ✅ LIVE
+- Site live: https://nccox1-hue.github.io/POD-and-Affiliate/
+- 7+ articles published automatically via Claude Haiku → git commit → GitHub Pages
+- Runs daily (24h schedule), 1 article/cycle
+- 28 keywords remaining in queue (`data/affiliate_keywords.json`)
 
-**After restart:** if ccxt still doesn't appear, the MCP protocol handshake may be failing. Investigate Claude Code output panel for errors.
+**Stream C — eBay Arbitrage** ⚠️ SCANNER WORKING, SUPPLIER BLOCKED
+- Playwright scanner confirmed: 200+ sold items per search, price floor £50-£300
+- Avasam free tier has NO inventory API access → 0 eBay listings created
+- Upgrade to Avasam Advanced (£24.92+VAT/mo) needed to unblock → defer until A/B earning
 
-### Completed (2026-05-29)
-- Finding API confirmed dead (`findCompletedItems` decommissioned 5 Feb 2025)
-- Cost audit completed — Avasam £24.99+VAT/mo, BigBuy ~£84/mo + €90 one-off, Monzo Pro £9/mo
-- Strategic pivot to crypto/prediction market arb sandbox
-- MCPs installed in global settings
+**Stream D — Crypto Funding Rate Arb** ⏸ PARKED
+- UK FCA bans retail perp trading — Bybit correctly blocks UK accounts
+- Code retained in `sandbox/` but scheduler jobs removed
+- Not viable without large capital AND regulatory exemption
 
-### Current state
-Arbitrage bot pipeline fully built. Scanner input broken (Finding API dead). New focus: sandbox crypto funding rate arb + prediction market arb.
+### MCP status
+Local MCPs (ccxt, funding-rates, prediction-markets) do NOT load in VS Code extension — confirmed limitation of the extension vs CLI. Cloud MCPs (Higgsfield, Google Calendar) work fine. Not worth further debugging.
+
+### Key decisions this session
+- Revenue target: **£1,000/month** combined across all streams
+- Physical POD (t-shirts): permanently shelved — no demand signal
+- Crypto arb: parked — UK FCA restriction + poor risk/reward at retail capital levels
+- eBay price floor: raised £8 → **£50** for better margin per sale
+- `.claude/settings.json` now gitignored (contained BW_SESSION token)
+- `setup_ebay_auth.py` hardcoded credentials replaced with env vars
+
+### Nick's pending manual actions
+See `C:\Users\nickc\.claude\projects\c--Users-nickc-Documents-POD-and-Affiliate\memory\nick_actions.md`
+Key remaining: Amazon Associates bank details, Rakuten/PartnerStack approvals, Google Search Console, Avasam upgrade decision, Bybit (parked).
 
 ### Next actions
-1. **After restart** — check which MCPs loaded. Fix `funding-rates` crash and `prediction-markets` silence.
-2. **If ccxt loads** — explore CCXT MCP: fetch funding rates, spot vs perp spreads on Binance testnet.
-3. **Manual** — check Avasam, BigBuy, Monzo dashboards. Cancel anything not justified.
-4. **Scanner fix** — Playwright vs Apify decision (lower priority until supplier billing clear).
+1. **Nick** — Add bank details to Amazon Associates (required to receive any commissions)
+2. **Nick** — Google Search Console: verify site and submit sitemap
+3. **Claude** — Debug Excel template pipeline (template listing creation failing — different error from wall art fix)
+4. **Claude** — Add Udemy course to plan (Stream E) — curriculum and scripts to be written by Claude
+5. **Both** — Monitor Etsy Seller Hub: are digital listings getting views? Any sales?
 
 ---
 
@@ -143,7 +165,7 @@ See [PLAN.md](PLAN.md) — work top to bottom, one item at a time.
 |---|---|
 | `main.py` | Entrypoint — FastAPI + uvicorn + scheduler |
 | `config/settings.py` | All env var definitions |
-| `scanner/ebay_sold_scanner.py` | eBay Finding API — finds sold listings |
+| `scanner/ebay_sold_scanner.py` | Playwright-based sold listing scanner (replaces dead Finding API) |
 | `scanner/margin_calculator.py` | Fee calc, profit filter, scoring |
 | `scanner/avasam_sourcer.py` | Avasam API client (stub until key set) |
 | `scanner/bigbuy_sourcer.py` | BigBuy API client (stub until key set) |
@@ -164,7 +186,7 @@ See [PLAN.md](PLAN.md) — work top to bottom, one item at a time.
 - **Min margin threshold:** 25% (configurable via `MIN_MARGIN_PCT` in `.env`)
 - **End listing if margin drops below:** 15% (hardcoded in `arbitrage/monitor.py`)
 - **eBay FVF:** 12.8% + £0.30 per transaction
-- **Scan price range:** £8–£80 (configurable via `MIN_EBAY_PRICE` / `MAX_EBAY_PRICE`)
+- **Scan price range:** £50–£300 (raised this session for better margin per sale)
 
 ## Versioning
 
