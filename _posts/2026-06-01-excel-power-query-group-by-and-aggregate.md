@@ -284,7 +284,7 @@ This creates multi-level summaries without manual formulas.
 
 ## Recommended Learning Resources
 
-If you want to deepen your Power Query skills beyond Group By, the [M Language in Excel Power Query course on Udemy][UDEMY_AFFILIATE_LINK] covers advanced transformations and custom functions.
+If you want to deepen your Power Query skills beyond Group By, the [M Language in Excel Power Query course on Udemy](https://trk.udemy.com/DWnAjG) covers advanced transformations and custom functions.
 
 For a comprehensive reference, *[M Programming Language for Excel and Power BI](https://www.amazon.co.uk/Programming-Language-Excel-Power-BI/dp/B0D8G8FXVH?tag=automatework-21)* provides detailed explanations of every Power Query function, including Group By variations.
 
@@ -302,7 +302,7 @@ Master Group By and you'll handle 80% of data summarisation tasks in Excel witho
 ## Further Reading
 
 - [Excel Power Query: Essential Formulas and Functions](https://www.amazon.co.uk/Excel-Power-Query-Essential-Formulas/dp/B0CY8JQPLW?tag=automatework-21)
-- [Power BI and Power Query for Data Transformation](https://www.udemy.com/course/power-bi-data-transformation/?[UDEMY_AFFILIATE_LINK])
+- [Power BI and Power Query for Data Transformation](https://trk.udemy.com/DWnAjG)
 - [Microsoft's Official Power Query M Reference Documentation](https://learn.microsoft.com/en-us/powerquery-m/power-query-m-reference)
 
 ---

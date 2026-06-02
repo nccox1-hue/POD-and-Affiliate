@@ -327,7 +327,7 @@ Both work. XLOOKUP's syntax is clearer about intent.
 
 ## Moving forward: Automation and beyond
 
-If you're using formulas like INDEX MATCH or XLOOKUP regularly to manage data, consider whether automation could help. [Learn Power Automate basics on Udemy][UDEMY_AFFILIATE_LINK] to see if cloud automation could replace repetitive manual lookups.
+If you're using formulas like INDEX MATCH or XLOOKUP regularly to manage data, consider whether automation could help. [Learn Power Automate basics on Udemy](https://trk.udemy.com/DWnAjG) to see if cloud automation could replace repetitive manual lookups.
 
 For more advanced Excel techniques and workflow optimisation, *[Excel 2024 Bible](https://www.amazon.co.uk/s?k=Excel+Bible&i=digital-text&ref=nb_sb_noss_2&linkCode=ll2&tag=automatework-21&linkId=12345&language=en_GB)* by John Walkenbach is comprehensive and regularly updated.
 

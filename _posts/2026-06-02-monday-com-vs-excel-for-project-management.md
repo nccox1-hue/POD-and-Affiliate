@@ -86,7 +86,7 @@ Teams successfully use Excel for project tracking by:
 
 **monday.com**: Pre-built integrations with Slack, Teams, Zapier, and 200+ apps. Add them from a menu. Most work out of the box.
 
-**Excel**: Works with Power Automate (Microsoft's automation platform), which can connect to Slack, Teams, Salesforce, and hundreds of services. Requires more configuration but often more powerful. You can also integrate via [Udemy courses on Power Automate automation](https://www.udemy.com/topic/microsoft-power-automate/) to learn advanced techniques — look for [UDEMY_AFFILIATE_LINK] on platform-specific automation.
+**Excel**: Works with Power Automate (Microsoft's automation platform), which can connect to Slack, Teams, Salesforce, and hundreds of services. Requires more configuration but often more powerful. You can also integrate via [Udemy courses on Power Automate automation](https://www.udemy.com/topic/microsoft-power-automate/) to learn advanced techniques — look for [Udemy](https://trk.udemy.com/DWnAjG) on platform-specific automation.
 
 *Winner for plug-and-play: monday.com. Winner for power users: Excel + Power Automate.*
 
@@ -218,7 +218,7 @@ This approach scales better than either tool alone. You get monday.com's collabo
 If you choose Excel, deepen your skills:
 
 - **[Excel 365: The Complete Guide](https://www.amazon.co.uk/s?k=excel+365+complete+guide&tag=automatework-21)** — Learn advanced formulas and project tracking techniques.
-- **[Power Automate automation course](https://www.udemy.com/topic/microsoft-power-automate/) [UDEMY_AFFILIATE_LINK]** — Automate status updates, notifications, and data syncing without leaving Excel.
+- **[Power Automate automation course](https://trk.udemy.com/DWnAjG)** — Automate status updates, notifications, and data syncing without leaving Excel.
 
 If you choose monday.com, their built-in onboarding is excellent. Their learning centre is free and well-structured.
 

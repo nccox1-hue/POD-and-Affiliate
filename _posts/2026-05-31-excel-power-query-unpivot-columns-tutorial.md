@@ -208,7 +208,7 @@ This hands-on practice solidifies the concept.
 
 For deeper learning on Power Query and data transformation, I recommend *[Microsoft Excel 2021 in Depth](https://www.amazon.co.uk/Microsoft-Excel-2021-Depth-Sperling/dp/0137521928?tag=automatework-21)* by Bill Sperling, which covers Power Query unpivoting with detailed examples.
 
-If you prefer video instruction, Udemy offers comprehensive Power Query courses that include unpivoting workflows: search for "Power Query Beginner" on [UDEMY_AFFILIATE_LINK] to find structured lessons you can work through at your own pace.
+If you prefer video instruction, Udemy offers comprehensive Power Query courses that include unpivoting workflows: search for "Power Query Beginner" on [Udemy](https://trk.udemy.com/DWnAjG) to find structured lessons you can work through at your own pace.
 
 For practical daily use, bookmark the official [Microsoft Power Query documentation](https://learn.microsoft.com/en-us/power-query/power-query-what-is-power-query), which includes videos and troubleshooting.
 

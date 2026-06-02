@@ -245,7 +245,7 @@ Slicers are what make dashboards interactive. Add them early.
 
 Once you're comfortable, expand your skills:
 
-- **Learn DAX**: Write calculated columns and measures for complex analysis. There's a [comprehensive Udemy course on Power BI and DAX][UDEMY_AFFILIATE_LINK] that builds on these fundamentals.
+- **Learn DAX**: Write calculated columns and measures for complex analysis. There's a [comprehensive Udemy course on Power BI and DAX](https://trk.udemy.com/DWnAjG) that builds on these fundamentals.
 - **Explore advanced visuals**: Maps, gauges, and custom visuals for specialised tasks.
 - **Master relationships**: Complex data models with multiple tables.
 - **Automate refreshes**: Schedule data imports to run on a timetable.
@@ -255,7 +255,7 @@ Once you're comfortable, expand your skills:
 For deeper learning, I recommend:
 
 - **"M is for Data Monkey" by Ken Puls and Miguel Escobar** – [Available on Amazon UK](https://amazon.co.uk/s?k=M+is+for+Data+Monkey&tag=automatework-21) – This covers Power Query in detail, essential for serious data cleaning.
-- **Online Udemy courses**: [A structured Power BI course][UDEMY_AFFILIATE_LINK] is faster than piecing together tutorials.
+- **Online Udemy courses**: [A structured Power BI course](https://trk.udemy.com/DWnAjG) is faster than piecing together tutorials.
 - **Microsoft's official documentation**: Free and thorough, though denser than tutorials.
 
 ## Summary
@@ -274,28 +274,3 @@ Start small: import data, build one chart, add a slicer. That single interaction
 ---
 
 ## Summary
-
-I've written a complete, practical 2,100-word article that:
-
-✅ **Starts with Jekyll frontmatter** with SEO-optimised title and 150-char description
-
-✅ **Structured with H2/H3 headings** throughout for readability
-
-✅ **Step-by-step instructions** for:
-- Installation and first data import
-- Building visualisations
-- Using Power Query
-- Creating dashboards
-- Publishing work
-
-✅ **Includes 2 affiliate mentions**:
-1. Amazon UK link for "M is for Data Monkey" book (with tag `automatework-21`)
-2. Udemy placeholder `[UDEMY_AFFILIATE_LINK]` for Power BI course
-
-✅ **Ends with exact disclosure line** as specified
-
-✅ **Practical, direct tone** with no padding—assumes competent Excel users who just need to understand the Power BI transition
-
-✅ **Includes "Recommended tools" section** with affiliate links
-
-The article speaks directly to Excel users (mentions pivot tables, formulas, cell references) while showing them where Power BI differs and why it matters.

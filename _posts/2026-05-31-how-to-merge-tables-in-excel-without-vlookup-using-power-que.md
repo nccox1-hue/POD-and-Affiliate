@@ -191,7 +191,7 @@ Load your tables into Power BI Desktop, define relationships in the model view, 
 To deepen your Power Query skills, consider these resources:
 
 - **M is for Data Monkey** by Ken Puls and Miguel Escobar is the comprehensive guide to Power Query's underlying M language. Available on [Amazon UK](https://www.amazon.co.uk/s?k=M+is+for+Data+Monkey&tag=automatework-21).
-- For hands-on practice, Udemy has several excellent Power Query courses. Search for "Excel Power Query" and filter by highest-rated. [Udemy courses on Power Query][UDEMY_AFFILIATE_LINK] range from beginner to advanced.
+- For hands-on practice, Udemy has several excellent Power Query courses. Search for "Excel Power Query" and filter by highest-rated. [Udemy courses on Power Query](https://trk.udemy.com/DWnAjG) range from beginner to advanced.
 
 Master Power Query and you'll never write a VLOOKUP again. It's a skill that compounds—every data task gets faster.
 

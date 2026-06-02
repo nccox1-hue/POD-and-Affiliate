@@ -265,7 +265,7 @@ Stack your deduplication step logically. Generally, remove duplicates early—be
 
 If you want to deepen your Power Query skills, [**M is for (Data) Monkey** by Ken Puls and Miguel Escobar](https://www.amazon.co.uk/M-Data-Monkey-QueryFormula-Language/dp/1615470611?tag=automatework-21) is the definitive guide. It covers every Power Query technique including advanced deduplication.
 
-For structured, video-based learning, the [Udemy Power Query and Power BI course][UDEMY_AFFILIATE_LINK] walks you through real-world examples including duplicate removal at scale.
+For structured, video-based learning, the [Udemy Power Query and Power BI course](https://trk.udemy.com/DWnAjG) walks you through real-world examples including duplicate removal at scale.
 
 ## Summary
 

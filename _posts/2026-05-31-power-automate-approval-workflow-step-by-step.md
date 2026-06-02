@@ -254,7 +254,7 @@ To deepen your Power Automate knowledge, consider these resources:
 
 **"Automate It"** by Hannes Ergin and Keziah Bryceland is a practical guide to Power Automate workflows with real-world examples. [Available on Amazon UK](https://www.amazon.co.uk/s?k=power+automate+book&tag=automatework-21).
 
-For hands-on training, **[Udemy's Power Automate courses][UDEMY_AFFILIATE_LINK]** offer structured learning paths with video demonstrations of approval workflows and common scenarios.
+For hands-on training, **[Udemy's Power Automate courses](https://trk.udemy.com/DWnAjG)** offer structured learning paths with video demonstrations of approval workflows and common scenarios.
 
 The official [Microsoft Power Automate documentation](https://learn.microsoft.com/en-us/power-automate/) is free and regularly updated with new features and best practices.
 

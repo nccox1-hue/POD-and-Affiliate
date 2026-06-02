@@ -262,7 +262,7 @@ This entire chain runs automatically. No chasing, no forgotten approvals, no ema
 
 To deepen your Power Automate skills, consider these resources:
 
-- [Power Automate Desktop: Learn RPA & Automation][UDEMY_AFFILIATE_LINK] — A comprehensive Udemy course covering flow design patterns and best practices.
+- [Power Automate Desktop: Learn RPA & Automation](https://trk.udemy.com/DWnAjG) — A comprehensive Udemy course covering flow design patterns and best practices.
 - [Microsoft Power Automate Cookbook on Amazon UK](https://www.amazon.co.uk/Microsoft-Power-Automate-Cookbook-workflows/dp/B0CZQM1MQM?tag=automatework-21) — Real-world recipes for approval workflows and beyond.
 
 ## Further Reading

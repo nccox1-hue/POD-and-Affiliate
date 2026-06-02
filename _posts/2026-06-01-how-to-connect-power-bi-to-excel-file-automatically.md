@@ -266,7 +266,7 @@ If performance is critical, import data and set aggressive refresh schedules (mu
 
 If you're new to Power BI and Excel automation, [*Learn Power BI in a Month of Lunches* by Devin Knight](https://www.amazon.co.uk/Learn-Power-Month-Lunches-Devin/dp/1617296244?tag=automatework-21) walks through these exact scenarios step by step.
 
-For hands-on practice, try the [Udemy course on Power BI and Power Automate integration][UDEMY_AFFILIATE_LINK] — it covers live examples of Excel-to-Power BI automation.
+For hands-on practice, try the [Udemy course on Power BI and Power Automate integration](https://trk.udemy.com/DWnAjG) — it covers live examples of Excel-to-Power BI automation.
 
 Microsoft's official documentation on [Power BI refresh settings](https://learn.microsoft.com/en-us/power-bi/connect-data/refresh-data) is authoritative but dense; use it to clarify specific credential or gateway questions.
 

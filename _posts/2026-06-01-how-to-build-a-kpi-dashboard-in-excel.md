@@ -234,7 +234,7 @@ To speed up dashboard building, use templates or additional tools.
 
 The book *Excel Dashboards and Reports* by Michael Alexander (available on [Amazon UK](https://amazon.co.uk/s?k=Excel+Dashboards+Reports&tag=automatework-21)) covers advanced techniques for visualisation and interactivity. It's worth reading if you're building dashboards regularly.
 
-For learning VBA or Power Query to automate your dashboard, try the course [UDEMY_AFFILIATE_LINK] on Udemy. It covers practical automation for Excel dashboards.
+For learning VBA or Power Query to automate your dashboard, try the course [Udemy](https://trk.udemy.com/DWnAjG) on Udemy. It covers practical automation for Excel dashboards.
 
 Alternatively, if your data is large or complex, Power BI offers a more scalable solution. But for straightforward KPI tracking, Excel is faster to set up and easier for non-technical users to maintain.
 
@@ -272,7 +272,7 @@ A KPI dashboard is a tool. Build it to answer real questions. If it doesn't driv
 ## Further Reading
 
 - [Excel Dashboards and Reports by Michael Alexander on Amazon UK](https://amazon.co.uk/s?k=Excel+Dashboards+Reports&tag=automatework-21)
-- Power Query and VBA automation course on [UDEMY_AFFILIATE_LINK]
+- Power Query and VBA automation course on [Udemy](https://trk.udemy.com/DWnAjG)
 - Microsoft's official Excel dashboard tutorial (free)
 
 ---

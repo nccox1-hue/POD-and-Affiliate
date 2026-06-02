@@ -194,7 +194,7 @@ Don't schedule flows during peak business hours (9–10 AM, lunch hours, or end-
 
 If you're building complex daily workflows, invest in understanding automation fundamentals. [**Automate Your Life with Excel, Power BI, and Power Automate**](https://www.amazon.co.uk/Automate-Your-Excel-Power-Automate/dp/B0CKLZ3W7Z?tag=automatework-21) on Amazon provides practical examples of daily automation patterns and troubleshooting.
 
-For deeper Power Automate skills, take a structured [Udemy course on Power Automate fundamentals][UDEMY_AFFILIATE_LINK]. A few hours of focused learning saves weeks of trial-and-error.
+For deeper Power Automate skills, take a structured [Udemy course on Power Automate fundamentals](https://trk.udemy.com/DWnAjG). A few hours of focused learning saves weeks of trial-and-error.
 
 ## Further Reading
 
