@@ -103,12 +103,14 @@ in
 
 Tables are lists of records with consistent structure:
 
+{% raw %}
 ```
 let
     MyTable = #table({"Name", "Age"}, {{"Alice", 30}, {"Bob", 25}})
 in
     MyTable
 ```
+{% endraw %}
 
 The `#table()` function takes column names and a list of rows.
 
@@ -142,6 +144,7 @@ in
 
 **Table.RenameColumns** renames columns:
 
+{% raw %}
 ```
 let
     Source = Excel.Workbook(...),
@@ -150,6 +153,7 @@ let
 in
     Renamed
 ```
+{% endraw %}
 
 **Table.Group** aggregates data by a key:
 
